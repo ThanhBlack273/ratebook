@@ -1,14 +1,10 @@
 import {NativeStackHeaderProps} from '@react-navigation/native-stack';
-import {StyleProp, StyleSheet, Text, View, ViewStyle} from 'react-native';
+import {StyleSheet, Text, View} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-interface HeaderProps extends NativeStackHeaderProps {
-    style?: StyleProp<ViewStyle>;
-}
-
-const Header = ({options, navigation, style}: HeaderProps) => {
+const Header = ({options, navigation}: NativeStackHeaderProps) => {
     return (
-        <View style={[styles.headerContainer, style]}>
+        <View style={styles.headerContainer}>
             <View style={styles.headerContent}>
                 <AntDesign
                     size={20}

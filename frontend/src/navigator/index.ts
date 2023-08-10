@@ -1,5 +1,4 @@
 export {default as DrawerNavigator} from './DrawerNavigator';
-export {default as ProfileTabNavigator} from './ProfileTabNavigator';
 
 export type {
     SignInProps,
@@ -10,10 +9,3 @@ export type {
     StackParamList,
 } from './StackNavigatorTypes';
 export type {HomeTabParamList, RegisteredBookTabProps} from './TabNavigatorTypes';
-
-export type {
-    FavoriteTabProps,
-    ProfileTabParamList,
-    RegisterTabProps,
-    ReviewTabProps,
-} from './ProfileTabNavigatorTypes';

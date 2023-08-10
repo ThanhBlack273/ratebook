@@ -1,6 +1,7 @@
 import cloudinary from '../config/cloudinary.config';
+import express, { Express, NextFunction, Request, Response } from 'express';
 
-export const upImage = async (req, res) => {
+export const upImage = async (req: Request, res: Response) => {
     try {
         if (req.file !== undefined) {
             await cloudinary.uploader
@@ -17,7 +18,7 @@ export const upImage = async (req, res) => {
     }
 };
 
-export const delImage = async (req, res) => {
+export const delImage = async (req: Request, res: Response) => {
     try {
         const listLink = req.body.oldLink;
         listLink.forEach(async (element) => {

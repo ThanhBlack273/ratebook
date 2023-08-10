@@ -3,11 +3,15 @@ import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import config from '../config/auth.config';
 import cloudinary from '../config/cloudinary.config';
+import { NextFunction, Request, Response } from 'express';
+import {} from 'multer';
 
 const User = db.user;
 const refreshTokens = {};
-
-export const signup = async (req, res) => {
+interface RequestMulter extends Request {
+    file: Express.Multer.File;
+}
+export const signup = async (req: RequestMulter, res: Response) => {
     try {
         if (req.body.password !== req.body.passwordConfirm) {
             return res.status(401).send({
@@ -46,7 +50,7 @@ export const signup = async (req, res) => {
     }
 };
 
-export const checkDuplicateEmail = (req, res) => {
+export const checkDuplicateEmail = (req: Request, res: Response) => {
     try {
         User.findOne({
             where: {
@@ -66,7 +70,7 @@ export const checkDuplicateEmail = (req, res) => {
     }
 };
 
-export const signin = (req, res) => {
+export const signin = (req: Request, res: Response) => {
     try {
         User.findOne({
             where: {
@@ -118,12 +122,12 @@ export const signin = (req, res) => {
     }
 };
 
-export const refreshToken = (req, res) => {
+export const refreshToken = (req: Request, res: Response) => {
     try {
         const refreshToken = req.body.refreshToken;
         if (refreshToken in refreshTokens) {
             try {
-                const token = jwt.sign({ id: req.id }, config.secret, {
+                const token = jwt.sign({ id: res.locals.id }, config.secret, {
                     algorithm: 'HS256',
                     allowInsecureKeySizes: true,
                     expiresIn: config.tokenLife, // 5 mins
@@ -148,11 +152,11 @@ export const refreshToken = (req, res) => {
     }
 };
 
-export const changePassword = (req, res) => {
+export const changePassword = (req: Request, res: Response) => {
     try {
         User.findOne({
             where: {
-                id: req.id,
+                id: res.locals.id,
             },
         })
             .then((user) => {
@@ -201,11 +205,11 @@ export const changePassword = (req, res) => {
     }
 };
 
-export const changeInfoUser = (req, res) => {
+export const changeInfoUser = (req: Request, res: Response) => {
     try {
         User.findOne({
             where: {
-                id: req.id,
+                id: res.locals.id,
             },
         })
             .then(async (user) => {
@@ -289,7 +293,7 @@ export const changeInfoUser = (req, res) => {
     }
 };
 
-export const forgotPassword = (req, res) => {
+export const forgotPassword = (req: Request, res: Response) => {
     try {
         User.findOne({
             where: {
@@ -320,11 +324,11 @@ export const forgotPassword = (req, res) => {
     }
 };
 
-export const resetPassword = (req, res) => {
+export const resetPassword = (req: Request, res: Response) => {
     try {
         User.findOne({
             where: {
-                id: req.id,
+                id: res.locals.id,
             },
         })
             .then((user) => {

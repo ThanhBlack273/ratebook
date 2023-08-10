@@ -20,19 +20,17 @@ interface PayloadError {
     };
 }
 
-export const isAllValidFieldOfObject = (obj: any, exceptArr?: string[]): Boolean => {
+export const isAllValidFieldOfObject = (obj: any): Boolean => {
     let isAllValidField = true;
     for (const idx in obj) {
-        if (exceptArr && exceptArr.length !== 0 && exceptArr.includes(idx)) continue;
         isAllValidField = isAllValidField && Boolean(obj[idx]);
     }
     return isAllValidField;
 };
 
-export const isAllInValidFieldOfObject = (obj: any, exceptArr?: string[]): Boolean => {
+export const isAllInValidFieldOfObject = (obj: any): Boolean => {
     let isAllValidField = false;
     for (const idx in obj) {
-        if (exceptArr && exceptArr.length !== 0 && exceptArr.includes(idx)) continue;
         isAllValidField = isAllValidField || Boolean(obj[idx]);
     }
     return !isAllValidField;
@@ -95,9 +93,3 @@ export const transformResponseGGBook = (item: IGGBook): IBook => ({
     title: item.volumeInfo.title,
     subtitle: item.volumeInfo.subtitle,
 });
-
-export const transformToDate = (date: string | undefined): string => {
-    if (!date) return '';
-    const instance = new Date(date);
-    return instance.getDate() + '/' + (instance.getMonth() + 1) + '/' + instance.getFullYear();
-};

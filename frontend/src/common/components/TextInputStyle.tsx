@@ -7,7 +7,6 @@ import {
     TextInput,
     TextInputFocusEventData,
     TextInputProps,
-    TextStyle,
     View,
     ViewStyle,
 } from 'react-native';
@@ -18,7 +17,6 @@ interface TextInputStyleProps extends Omit<Omit<TextInputProps, 'onBlur'>, 'onFo
     onBlur?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
     onFocus?: (e: NativeSyntheticEvent<TextInputFocusEventData>) => void;
     style?: StyleProp<ViewStyle>;
-    styleInput?: StyleProp<TextStyle>;
 }
 
 const TextInputStyle = ({
@@ -27,7 +25,6 @@ const TextInputStyle = ({
     onBlur,
     onFocus,
     style,
-    styleInput,
     ...textInputProps
 }: TextInputStyleProps) => {
     const [isFocus, setIsFocus] = useState(false);
@@ -60,7 +57,6 @@ const TextInputStyle = ({
                     styles.input,
                     isFocus ? {borderBottomColor: '#1E90FF'} : undefined,
                     error ? {borderBottomColor: 'red'} : undefined,
-                    styleInput,
                 ]}
                 {...textInputProps}
             />

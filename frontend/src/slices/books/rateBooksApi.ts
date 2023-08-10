@@ -1,10 +1,11 @@
 import {rateBookApiSlice} from '../rateBookApiSlice';
 import {
     IBook,
-    IGetBookRateBookInput,
     IGetRegisteredBooksOutput,
+    IPostImageInput,
     IPostImageOutput,
     IRegisterBookInput,
+    IRegisterBookOutput,
     ISearchBooksInput,
     ISearchBooksOutput,
 } from './rateBooksType';
@@ -33,50 +34,18 @@ export const bookApi = rateBookApiSlice.injectEndpoints({
                 formData: true,
             }),
         }),
-        registerBook: builder.mutation<IBook, IRegisterBookInput>({
+        registerBook: builder.mutation<IRegisterBookOutput, IRegisterBookInput>({
             query: data => ({
                 url: '/book/subscribe_book',
                 method: 'POST',
                 body: data,
             }),
-            async onQueryStarted(arg, {queryFulfilled, dispatch}) {
-                try {
-                    await queryFulfilled;
-                    dispatch(
-                        bookApi.endpoints.getRegisteredBooks.initiate(1, {forceRefetch: true}),
-                    );
-                } catch (error) {
-                    // do something
-                }
-            },
         }),
-        getBookRateBook: builder.query<IBook, IGetBookRateBookInput>({
-            query: data => `/book/check_exist?ISBN_10=${data.ISBN_10}&ISBN_13=${data.ISBN_13}`,
+        getBookRateBook: builder.query<IBook, string>({
+            query: id => `/book?id=${id}`,
         }),
         getRegisteredBooks: builder.query<IGetRegisteredBooksOutput, number>({
-            query: (page = 1) => `/book/get_all_book?page=${page}`,
-            serializeQueryArgs: ({endpointName}) => {
-                return endpointName;
-            },
-            merge: (currentCache, newItems, {arg}) => {
-                if (arg === 1) currentCache.books = newItems.books;
-                else currentCache.books.push(...newItems.books);
-            },
-            forceRefetch({currentArg, previousArg}) {
-                return currentArg !== previousArg;
-            },
-        }),
-        getBookInfo: builder.query<IBook, number>({
-            query: id => ({
-                url: `/book/${id}`,
-                method: 'GET',
-            }),
-        }),
-        getRegisteredBookByUser: builder.query<IGetRegisteredBooksOutput, number>({
-            query: id => ({
-                url: `/user/get_list_sub?id=${id}&page=1`,
-                method: 'GET',
-            }),
+            query: page => `/book/get_all_book?page=${page}`,
         }),
     }),
 });
@@ -87,8 +56,6 @@ export const {
     useRegisterBookMutation,
     useGetBookRateBookQuery,
     useGetRegisteredBooksQuery,
-    useGetBookInfoQuery,
-    useGetRegisteredBookByUserQuery,
 } = bookApi;
 
 export default bookApi;

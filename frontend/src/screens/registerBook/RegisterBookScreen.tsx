@@ -1,21 +1,19 @@
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import {useFormik} from 'formik';
-import {useEffect, useRef} from 'react';
+import {useEffect, useRef, useState} from 'react';
 import Toast from 'react-native-toast-message';
 import * as yup from 'yup';
 import {DateTimePickerEvent} from '@react-native-community/datetimepicker';
-import {useDispatch} from 'react-redux';
 
 import {DatePicker, ImagePickerBook, LoadingButton, TextInputStyle} from '../../common/components';
-import {
-    createFormData,
-    isAllInValidFieldOfObject,
-    isAllValidFieldOfObject,
-} from '../../common/utils/heaper';
+import {createFormData, isAllInValidFieldOfObject} from '../../common/utils/heaper';
 import {RegisterBookScreenProps} from '../../navigator/StackNavigatorTypes';
 import {getImageAsset} from '../../common/utils/imagePicker';
-import {useGetGGBookQuery, useRegisterBookMutation} from '../../slices/books';
-import {useDeleteImageMutation, useUploadImageMutation} from '../../slices/images';
+import {
+    useGetGGBookQuery,
+    usePostImageBookMutation,
+    useRegisterBookMutation,
+} from '../../slices/books';
 
 const validationSchema = yup.object({
     title: yup.string().required('Title is required'),
@@ -50,8 +48,7 @@ const RegisterBookScreen = ({route, navigation}: RegisterBookScreenProps) => {
     const photoLinkkRef = useRef<string>('');
 
     // Call API
-    const [uploadImage] = useUploadImageMutation();
-    const [deleteImage] = useDeleteImageMutation();
+    const [postImage] = usePostImageBookMutation();
     const [registerBook, {data: registedBook, isLoading}] = useRegisterBookMutation();
     const {data: bookData, isFetching} = useGetGGBookQuery(route.params.id as string, {
         skip: !route.params.id,
@@ -87,30 +84,29 @@ const RegisterBookScreen = ({route, navigation}: RegisterBookScreenProps) => {
                     }),
             });
         }
-    }, [registedBook]);
-
-    useEffect(() => {
         return () => {
-            if (photoLinkkRef.current && !photoLinkkRef.current.includes('.google'))
-                deleteImage({oldLink: [photoLinkkRef.current]}).unwrap();
+            const formData = createFormData({
+                oldLink: photoLinkkRef.current,
+            });
+            // Deleting image when user go back page
+            // const deleteOldImage = async () => await postImage(formData).unwrap();
+            // deleteOldImage();
         };
-    }, []);
+    }, [registedBook]);
 
     // functions handle events
     const handleChooseImage = async () => {
         const asset = await getImageAsset();
         if (asset) {
-            if (formik.values.photoLink && !formik.values.photoLink.includes('.google'))
-                await deleteImage({oldLink: [formik.values.photoLink]});
             const formData = createFormData({
-                image: asset,
+                photoBook: asset,
+                oldLink: photoLinkkRef.current,
             });
-            const {photoLink} = await uploadImage(formData).unwrap();
+            const {photoLink} = await postImage(formData).unwrap();
             formik.setFieldValue('photoLink', photoLink);
             photoLinkkRef.current = photoLink;
         }
     };
-
     const handleSubmit = async (values: typeof initialValues) => {
         await registerBook({
             ...values,
@@ -120,7 +116,6 @@ const RegisterBookScreen = ({route, navigation}: RegisterBookScreenProps) => {
             smallThumbnail: values.photoLink,
         }).unwrap();
     };
-
     const handleChangeDate = (e: DateTimePickerEvent, date: Date | undefined) => {
         const publishedDate = date ? date : formik.values.publishedDate;
         formik.setFieldValue('publishedDate', publishedDate);
@@ -200,12 +195,7 @@ const RegisterBookScreen = ({route, navigation}: RegisterBookScreenProps) => {
                     text="Sign In"
                     onPress={() => formik.handleSubmit()}
                     isLoading={isLoading}
-                    disabled={
-                        !(
-                            isAllValidFieldOfObject(formik.values, ['subtitle']) &&
-                            isAllInValidFieldOfObject(formik.errors)
-                        )
-                    }
+                    disabled={!isAllInValidFieldOfObject(formik.errors)}
                 />
             </View>
         </View>

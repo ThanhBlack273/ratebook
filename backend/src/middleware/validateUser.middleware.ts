@@ -2,7 +2,9 @@ import Validator from '../helpers/validate';
 import db from '../models';
 const User = db.user;
 
-const checkSignup = (req, res, next) => {
+import { NextFunction, Request, Response } from 'express';
+
+const checkSignup = (req: Request, res: Response, next: NextFunction) => {
     try {
         const rules = {
             email: 'required|string|email|exist:user,email',
@@ -32,7 +34,7 @@ const checkSignup = (req, res, next) => {
     }
 };
 
-const checkChangeInfo = (req, res, next) => {
+const checkChangeInfo = (req: Request, res: Response, next: NextFunction) => {
     try {
         const rules = {
             userName: 'required|string',
@@ -57,7 +59,7 @@ const checkChangeInfo = (req, res, next) => {
     }
 };
 
-const checkExistEmail = (req, res, next) => {
+const checkExistEmail = (req: Request, res: Response, next: NextFunction) => {
     try {
         User.findOne({
             where: {

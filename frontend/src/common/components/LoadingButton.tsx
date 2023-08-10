@@ -14,7 +14,6 @@ interface LoadingButtonProps {
     onPress?: ((event: GestureResponderEvent) => void) | undefined;
     isLoading?: boolean;
     disabled?: boolean;
-    children?: React.ReactNode;
     style?: StyleProp<ViewStyle>;
 }
 
@@ -23,7 +22,6 @@ const LoadingButton = ({
     isLoading = false,
     onPress = undefined,
     disabled = false,
-    children,
     style = {},
 }: LoadingButtonProps) => {
     return (
@@ -40,10 +38,7 @@ const LoadingButton = ({
                     {isLoading ? (
                         <ActivityIndicator size="small" color="yellow" />
                     ) : (
-                        <View style={styles.buttonContent}>
-                            {children}
-                            <Text style={styles.buttonText}>{text}</Text>
-                        </View>
+                        <Text style={styles.buttonText}>{text}</Text>
                     )}
                 </View>
             </TouchableOpacity>
@@ -69,10 +64,6 @@ const styles = StyleSheet.create({
         color: 'black',
         fontWeight: '600',
         fontSize: 14,
-    },
-    buttonContent: {
-        alignItems: 'center',
-        flexDirection: 'row',
     },
 });
 

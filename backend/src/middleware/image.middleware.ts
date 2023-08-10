@@ -1,5 +1,6 @@
-import Validator from '../helpers/validate';
-import { Op } from 'sequelize';
+// import Validator from '../helpers/validate';
+// import { Op } from 'sequelize';
+import { NextFunction, Request, Response } from 'express';
 
 const isValidUrl = (urlString) => {
     const urlPattern = new RegExp(
@@ -13,7 +14,7 @@ const isValidUrl = (urlString) => {
     ); // validate fragment locator
     return !!urlPattern.test(urlString);
 };
-const validLinkImage = async (req, res, next) => {
+const validLinkImage = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (req.body.oldLink != undefined || req.body.oldLink.length != 0) {
             const listLink = req.body.oldLink;
@@ -31,7 +32,6 @@ const validLinkImage = async (req, res, next) => {
                     });
                 }
             }
-
             return next();
         }
         return res.status(422).send({

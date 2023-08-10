@@ -1,3 +1,5 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 import {rateBookApiSlice} from '../rateBookApiSlice';
 import {
     IForgotPasswordInput,
@@ -5,10 +7,10 @@ import {
     IResetPasswordInput,
     ISignInInput,
     ISignInOutput,
+    ISignUpInput,
     IUSer,
 } from './authType';
 import {userLoggedIn} from './authSlice';
-import {setSecureValue} from '../../common/utils/keyChain';
 
 const authApi = rateBookApiSlice.injectEndpoints({
     endpoints: builder => ({
@@ -22,9 +24,9 @@ const authApi = rateBookApiSlice.injectEndpoints({
                 try {
                     const result = await queryFulfilled;
 
-                    await setSecureValue('accessToken', result.data.accessToken);
-                    await setSecureValue('refreshToken', result.data.refreshToken);
-                    await setSecureValue('user', JSON.stringify(result.data.user));
+                    await AsyncStorage.setItem('accessToken', result.data.accessToken);
+                    await AsyncStorage.setItem('refreshToken', result.data.refreshToken);
+                    await AsyncStorage.setItem('user', JSON.stringify(result.data.user));
 
                     dispatch(userLoggedIn(result.data));
                 } catch (error) {
@@ -55,12 +57,6 @@ const authApi = rateBookApiSlice.injectEndpoints({
                 body: data,
             }),
         }),
-        getUserInfo: builder.query<IUSer, number>({
-            query: userId => ({
-                url: `/user//get_user_info?id=${userId}`,
-                method: 'GET',
-            }),
-        }),
     }),
 });
 
@@ -69,7 +65,6 @@ export const {
     useSignUpMutation,
     useForgotPasswordMutation,
     useResetPasswordMutation,
-    useGetUserInfoQuery,
 } = authApi;
 
 export default authApi;

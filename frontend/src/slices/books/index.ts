@@ -5,8 +5,6 @@ export {
     useRegisterBookMutation,
     useGetBookRateBookQuery,
     useGetRegisteredBooksQuery,
-    useGetBookInfoQuery,
-    useGetRegisteredBookByUserQuery,
 } from './rateBooksApi';
 
 export {
@@ -18,10 +16,9 @@ export {
 export type {
     IBook,
     IRegisterBookInput,
+    IRegisterBookOutput,
     IPostImageInput,
     IPostImageOutput,
     ISearchBooksInput,
     ISearchBooksOutput,
 } from './rateBooksType';
-
-export {default as bookSlice, updateModalType, updateCurrDetailBook} from './bookSlice';

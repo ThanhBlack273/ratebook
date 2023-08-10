@@ -1,3 +1,6 @@
+import { Optional } from 'sequelize';
+import { Table, Model } from 'sequelize-typescript';
+
 export const User = (sequelize, Sequelize) => {
     const User = sequelize.define('user', {
         email: {

@@ -15,8 +15,17 @@ import {rateBookApi, useGetBooksGoogleQuery, useGetBooksRateBookQuery} from '../
 import {SearchScreenProps} from '../../navigator/StackNavigatorTypes';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../../slices/store';
-import {PADDING_OFFSET, SEARCH_RADIO_ITEMS} from '../../common/constants';
-import Toast from 'react-native-toast-message';
+
+const SearchRadioItems = [
+    {
+        label: 'From RateBook',
+        value: 'ratebook',
+    },
+    {
+        label: 'From Google',
+        value: 'google',
+    },
+];
 
 const SearchScreen = ({route, navigation}: SearchScreenProps) => {
     // States
@@ -46,43 +55,21 @@ const SearchScreen = ({route, navigation}: SearchScreenProps) => {
 
     // functions handle events
     const handleSearch = () => {
-        if (searchText === query.searchText) return;
         setQuery({page: 1, searchText});
     };
     const handleMoveDown = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         if (
-            event.nativeEvent.contentOffset.y +
-                event.nativeEvent.layoutMeasurement.height +
-                PADDING_OFFSET >
+            event.nativeEvent.contentOffset.y + event.nativeEvent.layoutMeasurement.height + 100 >
             event.nativeEvent.contentSize.height
         ) {
-            if (isGGBookFetching || isRateBookFetching) return;
             setQuery(prev => ({...prev, page: prev.page + 1}));
         }
     };
     const handlePress = async (id: string) => {
-        const book = bookData?.books.find(book => book.id === id);
-        if (!(book && book.ISBN_10 && book.ISBN_13)) {
-            Toast.show({
-                type: 'error',
-                text1: 'This book can not register',
-            });
-            return;
-        }
-        const {isSuccess, isError} = await dispatch(
-            rateBookApi.endpoints.getBookRateBook.initiate({
-                ISBN_10: book.ISBN_10,
-                ISBN_13: book.ISBN_13,
-            }),
-        );
-        if (isSuccess) navigation.navigate('Detail', {id});
-        if (isError && mode === 'google') {
-            Toast.show({
-                type: 'success',
-                text1: 'You can register book',
-            });
-            navigation.navigate('RegisterBook', {id});
-        }
+        // const {isSuccess} = await dispatch(rateBookApi.endpoints.getBookRateBook.initiate(id));
+        const hasBookTemp = false; // The above api is not available
+        if (hasBookTemp || mode === 'ratebook') navigation.navigate('Detail', {id});
+        if (!hasBookTemp && mode === 'google') navigation.navigate('RegisterBook', {id});
     };
 
     return (
@@ -109,7 +96,7 @@ const SearchScreen = ({route, navigation}: SearchScreenProps) => {
                     </TouchableOpacity>
                 </View>
                 <RadioGroup
-                    items={SEARCH_RADIO_ITEMS}
+                    items={SearchRadioItems}
                     value={mode}
                     onChange={setMode}
                     style={styles.radio}
@@ -198,7 +185,6 @@ const styles = StyleSheet.create({
     },
     book: {
         marginTop: 10,
-        height: 130,
     },
     resultTitle: {
         width: '90%',

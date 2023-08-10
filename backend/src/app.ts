@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import express from 'express';
+import express, { Express, NextFunction, Request, Response } from 'express';
 import cors from 'cors';
 import db from './models';
 import bodyParser from 'body-parser';
@@ -44,7 +44,7 @@ app.use(
 app.use(bodyParser.json());
 
 // simple route
-app.get('/', (req, res) => {
+app.get('/', (req: Request, res: Response) => {
     res.json({ message: 'Hello World' });
 });
 app.use('/api/auth/', authRoute);

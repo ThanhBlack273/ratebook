@@ -4,13 +4,16 @@ const Review = db.review;
 const LikeBook = db.likebook;
 const LikeReview = db.likereview;
 const HideReview = db.hidereview;
+import { Op } from 'sequelize';
+import { NextFunction, Request, Response } from 'express';
 
-const checkValidReview = (req, res, next) => {
+const checkAddReview = (req: Request, res: Response, next: NextFunction) => {
     try {
         const rules = {
             rate: 'required|integer|min:1|max:5',
             content: 'required|string',
-            photoReview: 'array',
+            // photoReview: 'array',
+            userId: 'required|integer',
             bookId: 'required|integer',
         };
 
@@ -31,63 +34,22 @@ const checkValidReview = (req, res, next) => {
     }
 };
 
-const checkUpdateReview = (req, res, next) => {
-    try {
-        const rules = {
-            rate: 'required|integer|min:1|max:5',
-            content: 'required|string',
-            photoReview: 'array',
-        };
-
-        const validation = new Validator(req.body, rules, {});
-        validation.passes(() => next());
-        validation.fails(async () => {
-            const error = {};
-            const errors = validation.errors.all();
-            for (const err in errors) {
-                error[err] = Array.prototype.join.call(errors[err], '. ');
-            }
-            res.status(422).send({
-                error: error,
-            });
-        });
-    } catch (err) {
-        res.status(500).send({ error: err.message });
-    }
-};
-
-const checkOwnerReview = (req, res, next) => {
+const checkExistReview = (req: Request, res: Response, next: NextFunction) => {
     try {
         Review.findOne({
             where: {
-                userId: req.id,
-                id: req.params.reviewId,
-            },
-        }).then((review) => {
-            if (!review) {
-                res.status(400).send({
-                    error: 'Your review is not existed',
-                });
-                return;
-            }
-            req.review = review; //format code
-            next();
-        });
-    } catch (err) {
-        res.status(500).send({ error: err.message });
-    }
-};
-
-const checkExistReview = (req, res, next) => {
-    try {
-        Review.findOne({
-            where: {
-                userId: req.id,
-                bookId: req.body.bookId,
+                [Op.and]: [
+                    {
+                        userId: req.body.userId,
+                    },
+                    {
+                        bookId: req.body.bookId,
+                    },
+                ],
             },
         }).then((review) => {
             if (review) {
-                res.status(400).send({
+                res.status(200).send({
                     error: 'You have already reviewed this book',
                 });
                 return;
@@ -99,12 +61,12 @@ const checkExistReview = (req, res, next) => {
     }
 };
 
-export const likeBookExist = (req, res, next) => {
+export const likeBookExist = (req: Request, res: Response, next: NextFunction) => {
     try {
         LikeBook.findOne({
             where: {
-                bookId: req.params.bookId,
-                userId: req.id,
+                bookId: req.body.bookId,
+                userId: req.body.userId,
             },
         })
             .then((liked) => {
@@ -121,12 +83,12 @@ export const likeBookExist = (req, res, next) => {
         res.status(500).send({ error: err.message });
     }
 };
-export const likeReviewExist = (req, res, next) => {
+export const likeReviewExist = (req: Request, res: Response, next: NextFunction) => {
     try {
         LikeReview.findOne({
             where: {
-                reviewId: req.params.reviewId,
-                userId: req.id,
+                reviewId: req.body.reviewId,
+                userId: req.body.userId,
             },
         })
             .then((liked) => {
@@ -143,12 +105,12 @@ export const likeReviewExist = (req, res, next) => {
         res.status(500).send({ error: err.message });
     }
 };
-export const hideReviewExist = (req, res, next) => {
+export const hideReviewExist = (req: Request, res: Response, next: NextFunction) => {
     try {
         HideReview.findOne({
             where: {
-                reviewId: req.params.reviewId,
-                userId: req.id,
+                reviewId: req.body.reviewId,
+                userId: req.body.userId,
             },
         })
             .then((hided) => {
@@ -165,37 +127,34 @@ export const hideReviewExist = (req, res, next) => {
         res.status(500).send({ error: err.message });
     }
 };
-export const checkDeleteOwnerReview = (req, res, next) => {
-    try {
-        Review.findOne({
-            where: {
-                id: req.params.reviewId,
-                userId: req.id,
-            },
-        })
-            .then((review) => {
-                if (!review) {
-                    return res.status(404).send({ error: 'It is not your review' });
-                }
-                req.review = review; //fomart code
-                next();
-            })
-            .catch((err) => {
-                return res.status(500).send({ error: err.message });
-            });
-    } catch (err) {
-        res.status(500).send({ error: err.message });
-    }
-};
+// export const checkDeleteReviewExist = (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         LikeReview.findOne({
+//             where: {
+//                 reviewId: req.body.reviewId,
+//                 userId: req.body.userId,
+//             },
+//         })
+//             .then((liked) => {
+//                 if (liked) {
+//                     liked.destroy({ force: true });
+//                     return res.status(201).send({ liked: false });
+//                 }
+//                 next();
+//             })
+//             .catch((err) => {
+//                 return res.status(500).send({ error: err.message });
+//             });
+//     } catch (err) {
+//         res.status(500).send({ error: err.message });
+//     }
+// };
 const validate = {
-    checkValidReview: checkValidReview,
-    checkUpdateReview: checkUpdateReview,
-    checkOwnerReview: checkOwnerReview,
+    checkAddReview: checkAddReview,
     checkExistReview: checkExistReview,
     checkLikeBookExist: likeBookExist,
     checkLikeReviewExist: likeReviewExist,
     checkHideReviewExist: hideReviewExist,
-    checkDeleteOwnerReview: checkDeleteOwnerReview,
     // checkDeleteReviewExist: checkDeleteReviewExist,
 };
 export default validate;

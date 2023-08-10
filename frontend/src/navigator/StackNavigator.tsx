@@ -11,8 +11,6 @@ import HomeHeader from '../screens/home/HomeHeader';
 import {SearchScreen} from '../screens/search';
 import {RegisterBookScreen} from '../screens/registerBook';
 import {DetailScreen} from '../screens/detail';
-import {ImageCarouselScreen} from '../screens/imagesCarousel.tsx';
-import {ProfileScreen} from '../screens/profiles';
 
 const Stack = createNativeStackNavigator<StackParamList>();
 
@@ -81,21 +79,6 @@ const StackNavigator = () => {
                 options={{
                     title: 'DETAIL BOOK',
                     header: props => <Header {...props} />,
-                }}
-            />
-            <Stack.Screen
-                name="ImageCarousel"
-                component={ImageCarouselScreen}
-                options={{
-                    title: 'Images',
-                    header: props => <Header {...props} style={{backgroundColor: '#505050'}} />,
-                }}
-            />
-            <Stack.Screen
-                name="Profile"
-                component={ProfileScreen}
-                options={{
-                    header: () => null,
                 }}
             />
         </Stack.Navigator>

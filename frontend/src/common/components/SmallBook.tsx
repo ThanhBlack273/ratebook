@@ -2,12 +2,12 @@ import {StyleProp, StyleSheet, Text, View, ViewStyle, Image} from 'react-native'
 import images from '../res/images';
 
 interface SmallBookProps {
-    id: string;
+    id: number;
     name: string;
     imgUri: string;
     authors: string;
     publisher: string;
-    handlePress: Function;
+    handlePress?: Function;
     style?: StyleProp<ViewStyle>;
 }
 
@@ -16,7 +16,7 @@ const SmallBook = ({id, name, imgUri, authors, publisher, handlePress, style}: S
         <View style={[styles.container, style]}>
             <Image style={styles.bookImg} source={imgUri ? {uri: imgUri} : images.bookDefault} />
             <View style={styles.bookInfo}>
-                <Text style={styles.title} numberOfLines={1} onPress={() => handlePress(id)}>
+                <Text style={styles.title} numberOfLines={1} onPress={() => null}>
                     {name}
                 </Text>
 
@@ -36,17 +36,10 @@ const SmallBook = ({id, name, imgUri, authors, publisher, handlePress, style}: S
 };
 const styles = StyleSheet.create({
     container: {
-        width: '48%',
-        backgroundColor: 'white',
-
-        shadowColor: '#000',
-        shadowOffset: {
-            width: 0,
-            height: 2,
-        },
-        shadowOpacity: 0.25,
-        shadowRadius: 4,
-        elevation: 5,
+        width: 175,
+        backgroundColor: 'lightcyan',
+        borderWidth: 2,
+        borderColor: '#1E90FF',
     },
     bookImg: {
         width: '100%',

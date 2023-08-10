@@ -4,7 +4,6 @@ export {
     useSignUpMutation,
     useForgotPasswordMutation,
     useResetPasswordMutation,
-    useGetUserInfoQuery,
 } from './authApi';
 
 export {default as authSlice} from './authSlice';

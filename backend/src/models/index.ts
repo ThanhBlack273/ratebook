@@ -95,72 +95,44 @@ db.hidereview.belongsTo(db.review, {
 });
 ////////////////
 
-//Triger for rate review to star of book
+// db.user.belongsToMany(db.review, {
+//     through: 'like_reviews',
+//     as: 'user',
+//     foreignKey: 'userId',
+// });
+
+// db.review.belongsToMany(db.user, {
+//     through: 'like_reviews',
+//     as: 'review',
+//     foreignKey: 'reviewId',
+// });
+
+// ////////////////
+
+// db.user.belongsToMany(db.review, {
+//     through: 'hide_reviews',
+//     as: 'user',
+//     foreignKey: 'userId',
+// });
+
+// db.review.belongsToMany(db.user, {
+//     through: 'hide_reviews',
+//     as: 'review',
+//     foreignKey: 'reviewId',
+// });
+
+///////////////////
 db.review.afterCreate(async (review, options) => {
     db.book
         .findOne({
             where: {
-                id: review.dataValues.bookId,
+                id: review.bookId,
             },
         })
         .then((book) => {
             book.update({
-                star:
-                    (book.dataValues.star * book.dataValues.countRate + review.dataValues.rate) /
-                    (book.dataValues.countRate + 1),
-                countRate: book.dataValues.countRate + 1,
-            });
-        });
-});
-
-db.review.beforeUpdate(async (review, options) => {
-    db.book
-        .findOne({
-            where: {
-                id: review.dataValues.bookId,
-            },
-        })
-        .then((book) => {
-            book.update({
-                star:
-                    (book.dataValues.star * book.dataValues.countRate -
-                        review._previousDataValues.rate +
-                        review.dataValues.rate) /
-                    book.countRate,
-            });
-        });
-});
-
-//////////////////
-// Nếu cần thiết thì làm trigger like book => count số lượng user đã like book
-
-//////////////////
-
-//Triger for likeReview to countLike of review
-db.likereview.afterCreate(async (likeReview, options) => {
-    db.review
-        .findOne({
-            where: {
-                id: likeReview.dataValues.reviewId,
-            },
-        })
-        .then((review) => {
-            review.update({
-                countLike: review.dataValues.countLike + 1,
-            });
-        });
-});
-
-db.likereview.beforeDestroy(async (likeReview, options) => {
-    db.review
-        .findOne({
-            where: {
-                id: likeReview.dataValues.reviewId,
-            },
-        })
-        .then((review) => {
-            review.update({
-                countLike: review.dataValues.countLike - 1,
+                star: (book.star * book.countRate + review.rate) / (book.countRate + 1),
+                countRate: book.countRate + 1,
             });
         });
 });

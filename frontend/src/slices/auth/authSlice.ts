@@ -1,11 +1,11 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
 import {IUSer} from './authType';
-import {removeSecureValue} from '../../common/utils/keyChain';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface IinitialState {
     accessToken: string | undefined;
     refreshToken: string | undefined;
-    user?: IUSer;
+    user: IUSer | undefined;
 }
 
 const initialState: IinitialState = {
@@ -21,15 +21,15 @@ const authSlice = createSlice({
         userLoggedIn: (state, action: PayloadAction<IinitialState>) => {
             state.accessToken = action.payload.accessToken;
             state.refreshToken = action.payload.refreshToken;
-            if (action.payload.user) state.user = action.payload.user;
+            state.user = action.payload.user;
         },
         userLoggedOut: state => {
             state.accessToken = undefined;
             state.refreshToken = undefined;
             state.user = undefined;
-            removeSecureValue('accessToken');
-            removeSecureValue('refreshToken');
-            removeSecureValue('user');
+            AsyncStorage.removeItem('accessToken');
+            AsyncStorage.removeItem('refreshToken');
+            AsyncStorage.removeItem('user');
         },
     },
 });

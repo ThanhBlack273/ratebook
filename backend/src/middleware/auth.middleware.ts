@@ -1,8 +1,9 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import config from '../config/auth.config';
+import { NextFunction, Request, Response } from 'express';
 //import db from "../models";
 
-const verifyToken = (req, res, next) => {
+const verifyToken = (req: Request, res: Response, next: NextFunction) => {
     try {
         const bearerHeader = req.headers.authorization;
         if (!bearerHeader || !bearerHeader.startsWith('Bearer')) {
@@ -12,13 +13,13 @@ const verifyToken = (req, res, next) => {
         }
         const token = bearerHeader.split(' ')[1];
 
-        jwt.verify(token, config.secret, (err, decoded) => {
+        jwt.verify(token, config.secret, (err, decoded: JwtPayload) => {
             if (err) {
                 return res.status(401).send({
                     error: 'Unauthorized!',
                 });
             }
-            req.id = decoded.id; //format code
+            res.locals.id = decoded.id;
             next();
         });
     } catch (err) {
@@ -26,7 +27,7 @@ const verifyToken = (req, res, next) => {
     }
 };
 
-const verifyRefreshToken = (req, res, next) => {
+const verifyRefreshToken = (req: Request, res: Response, next: NextFunction) => {
     try {
         const refreshToken = req.body.refreshToken;
 
@@ -36,13 +37,13 @@ const verifyRefreshToken = (req, res, next) => {
             });
         }
 
-        jwt.verify(refreshToken, config.refreshTokenSecret, (err, decoded) => {
+        jwt.verify(refreshToken, config.refreshTokenSecret, (err, decoded: JwtPayload) => {
             if (err) {
                 return res.status(401).send({
                     error: 'Unauthorized!',
                 });
             }
-            req.id = decoded.id;
+            res.locals.id = decoded.id;
             next();
         });
     } catch (err) {

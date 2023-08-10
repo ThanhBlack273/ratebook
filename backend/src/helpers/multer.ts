@@ -1,24 +1,28 @@
-import multer from 'multer';
+import multer, { FileFilterCallback } from 'multer';
+import { Request } from 'express';
+
+type DestinationCallback = (error: Error | null, destination: string) => void;
+type FileNameCallback = (error: Error | null, filename: string) => void;
 
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        cb(null, '/');
+    destination: function (request: Request, file: Express.Multer.File, callback: DestinationCallback) {
+        callback(null, '/');
     },
-    filename: (req, file, cb) => {
-        cb(null, file.originalname);
+    filename: function (req: Request, file: Express.Multer.File, callback: FileNameCallback) {
+        callback(null, file.originalname);
     },
 });
 
-const fileFilter = (req, file, cb) => {
+const fileFilter = (req: Request, file: Express.Multer.File, callback) => {
     if (
         file.mimetype === 'image/jpeg' ||
         file.mimetype === 'image/jpg' ||
         file.mimetype === 'image/png' ||
         file.mimetype === ''
     ) {
-        cb(null, true);
+        callback(null, true);
     } else {
-        cb({ error: { [file.name]: 'Unsupported file format' } }, false);
+        callback({ error: { [file.filename]: 'Unsupported file format' } }, false);
     }
 };
 

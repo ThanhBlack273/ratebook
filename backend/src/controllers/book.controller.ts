@@ -1,17 +1,15 @@
 import db from '../models';
 import { Op } from 'sequelize';
+import express, { Express, NextFunction, Request, Response } from 'express';
 
 const Book = db.book;
 const User = db.user;
 const Review = db.review;
-const HideReview = db.hidereview;
-const LikeReview = db.likereview;
-const LikeBook = db.likebook;
 
-export const subBook = (req, res) => {
+export const subBook = (req: Request, res: Response) => {
     try {
         Book.create({
-            userId: req.id, //fomart code
+            userId: req.body.userId,
             ISBN_10: req.body.ISBN_10,
             ISBN_13: req.body.ISBN_13,
             title: req.body.title,
@@ -58,7 +56,7 @@ const getPagingData = (data, page, limit) => {
     return { totalDatas, datas, totalPages, currentPage };
 };
 
-export const getAllBook = (req, res) => {
+export const getAllBook = (req: Request, res: Response) => {
     try {
         const limit = 10;
         const page = req.query.page ? req.query.page - 1 : 0;
@@ -88,7 +86,7 @@ export const getAllBook = (req, res) => {
     }
 };
 
-export const searchBook = (req, res) => {
+export const searchBook = (req: Request, res: Response) => {
     try {
         const limit = 10;
         const page = req.query.page ? req.query.page - 1 : 0;
@@ -132,11 +130,11 @@ export const searchBook = (req, res) => {
     }
 };
 
-export const getBookById = (req, res) => {
+export const getBookById = (req: Request, res: Response) => {
     try {
         Book.findOne({
             where: {
-                id: req.params.id,
+                id: req.query.id,
             },
             attributes: [
                 'id',
@@ -161,17 +159,6 @@ export const getBookById = (req, res) => {
                     as: 'subByUser',
                     attributes: ['id', 'userName', 'avatar'],
                 },
-                {
-                    model: LikeBook,
-                    as: 'likedListUser',
-                    attributes: ['id', 'bookId', 'userId'],
-                    where: {
-                        '$likedListUser.userId$': req.id,
-                        //'$likedReviewListUser.reviewId$': 4,
-                    },
-                    required: false,
-                    duplicating: false,
-                },
             ],
         })
             .then(async (book) => {
@@ -189,54 +176,22 @@ export const getBookById = (req, res) => {
     }
 };
 
-export const getReviewList = async (req, res) => {
+export const getReviewList = (req: Request, res: Response) => {
     try {
-        const listHide = await User.findOne({
-            where: {
-                id: req.id,
-            },
-            attributes: [],
-            include: [
-                {
-                    model: HideReview,
-                    as: 'hidedReviewListReview',
-                    attributes: ['reviewId'],
-                    required: false,
-                    duplicating: false,
-                },
-            ],
-        });
-        const arrayReviewHide = await listHide.hidedReviewListReview.map((object) => object.reviewId);
-
         const limit = 10;
         const page = req.query.page ? req.query.page - 1 : 0;
         const offset = page * limit;
         Review.findAndCountAll({
             where: {
-                id: {
-                    [Op.notIn]: arrayReviewHide,
-                },
-                bookId: req.params.bookId,
-                deleted: false,
+                bookId: req.query.id,
             },
             attributes: ['id', 'rate', 'content', 'photoReview', 'countLike', 'userId', 'bookId', 'updatedAt'],
-            include: [
-                {
-                    model: User,
-                    as: 'user',
-                    attributes: ['id', 'email', 'userName', 'avatar'],
-                },
-                {
-                    model: LikeReview,
-                    as: 'likedReviewListUser',
-                    attributes: ['id', 'userId', 'reviewId'],
-                    where: {
-                        '$likedReviewListUser.userId$': req.id,
-                    },
-                    required: false,
-                    duplicating: false,
-                },
-            ],
+            include: {
+                model: User,
+                as: 'user',
+                attributes: ['id', 'userName', 'avatar'],
+                //required: false,
+            },
             order: [['updatedAt', 'DESC']],
             limit,
             offset,

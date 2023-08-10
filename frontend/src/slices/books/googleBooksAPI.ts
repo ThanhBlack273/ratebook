@@ -1,8 +1,9 @@
-import {BOOKS_PER_PAGE} from '../../common/constants';
 import {transformResponseGGBook} from '../../common/utils/heaper';
 import {googleBookApiSlice} from '../googleApiSlice';
 import {IGGBook, IGGBookList, ISearchGGBooksInput, ISearchGGBooksOutput} from './googleBooksType';
 import {IBook} from './rateBooksType';
+
+const BOOKS_PER_PAGE = 10;
 
 export const googleBooksApi = googleBookApiSlice.injectEndpoints({
     endpoints: builder => ({

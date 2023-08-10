@@ -1,6 +1,6 @@
 import {IBook} from './rateBooksType';
 export interface IGGBook {
-    id: string;
+    id: number;
     volumeInfo: {
         title: string;
         subtitle: string;
