@@ -1,4 +1,4 @@
-import Validator from '../helpers/validate';
+import Validator from '../../helpers/validate';
 import { NextFunction, Request, Response } from 'express';
 
 const checkSubBook = (req: Request, res: Response, next: NextFunction) => {

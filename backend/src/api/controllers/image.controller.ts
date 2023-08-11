@@ -1,4 +1,4 @@
-import cloudinary from '../config/cloudinary.config';
+import cloudinary from '../../config/cloudinary.config';
 import express, { Express, NextFunction, Request, Response } from 'express';
 
 export const upImage = async (req: Request, res: Response) => {

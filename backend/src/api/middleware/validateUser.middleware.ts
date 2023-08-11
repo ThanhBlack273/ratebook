@@ -1,5 +1,5 @@
-import Validator from '../helpers/validate';
-import db from '../models';
+import Validator from '../../helpers/validate';
+import db from '../../models';
 const User = db.user;
 
 import { NextFunction, Request, Response } from 'express';

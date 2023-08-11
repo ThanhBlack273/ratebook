@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import db from '../models';
+import db from '../../models';
 //import { Op } from 'sequelize';
 
 const Book = db.book;

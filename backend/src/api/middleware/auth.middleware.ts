@@ -1,5 +1,5 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import config from '../config/auth.config';
+import config from '../../config/auth.config';
 import { NextFunction, Request, Response } from 'express';
 //import db from "../models";
 

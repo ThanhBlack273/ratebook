@@ -1,5 +1,5 @@
-import Validator from '../helpers/validate';
-import db from '../models';
+import Validator from '../../helpers/validate';
+import db from '../../models';
 const Review = db.review;
 const LikeBook = db.likebook;
 const LikeReview = db.likereview;

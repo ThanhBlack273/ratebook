@@ -1,4 +1,4 @@
-import upload from '../helpers/multer';
+import upload from '../../helpers/multer';
 import validLinkImage from '../middleware/image.middleware';
 
 import * as imageController from '../controllers/image.controller';

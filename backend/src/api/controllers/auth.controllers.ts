@@ -1,8 +1,8 @@
-import db from '../models';
+import db from '../../models';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
-import config from '../config/auth.config';
-import cloudinary from '../config/cloudinary.config';
+import config from '../../config/auth.config';
+import cloudinary from '../../config/cloudinary.config';
 import { NextFunction, Request, Response } from 'express';
 import {} from 'multer';
 
