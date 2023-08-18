@@ -1,104 +1,79 @@
-import config from '../config/db.config';
 import { Sequelize } from 'sequelize';
 import User from './user.model';
 import Book from './book.model';
-import { Review } from './review.model';
+import Review from './review.model';
 import { LikeBook } from './likeBook.model';
 import { LikeReview } from './likeReview.model';
 import { HideReview } from './hideReview.model';
 
-export { User, Book };
-
-// const sequelize = new Sequelize(config.DB, config.USER, config.PASSWORD, {
-//     host: config.HOST,
-//     dialect: 'postgres',
-//     port: config.port,
-//     pool: {
-//         max: config.pool.max,
-//         min: config.pool.min,
-//         acquire: config.pool.acquire,
-//         idle: config.pool.idle,
-//     },
-// });
-
-// const db = {
-//     Sequelize: Sequelize,
-//     sequelize: sequelize,
-//     user: User(sequelize, Sequelize),
-//     book: Book(sequelize, Sequelize),
-//     review: Review(sequelize, Sequelize),
-//     likebook: LikeBook(sequelize, Sequelize),
-//     likereview: LikeReview(sequelize, Sequelize),
-//     hidereview: HideReview(sequelize, Sequelize),
-// };
-
 // //user sub book
-// db.user.hasMany(db.book, { as: 'subcribedListBook' });
-// db.book.belongsTo(db.user, {
-//     foreignKey: 'userId',
-//     as: 'subByUser',
-// });
+// User.hasMany(Book, { as: 'subcribedListBook' });
+// Book.belongsTo(User);
+// Review.belongsTo(Book);
+// Book.hasMany(Review, { as: 'reviewedListUser' });
+// Review.belongsTo(User);
+
+// //user liên quan review
+// User.hasMany(Review, { as: 'reviewedListBook' });\
+
+//user sub book
+User.hasMany(Book, { sourceKey: 'id', foreignKey: 'userId', as: 'subcribedListBook' });
+Book.belongsTo(User, { targetKey: 'id' });
 // ////////////////
 
 // //user like sách
-// db.user.hasMany(db.likebook, { as: 'likedListBook' });
-// db.likebook.belongsTo(db.user, {
+// User.hasMany(db.likebook, { as: 'likedListBook' });
+// db.likebook.belongsTo(User, {
 //     foreignKey: 'userId',
 //     as: 'user',
 // });
 
-// db.book.hasMany(db.likebook, { as: 'likedListUser' });
-// db.likebook.belongsTo(db.book, {
+// Book.hasMany(db.likebook, { as: 'likedListUser' });
+// db.likebook.belongsTo(Book, {
 //     foreignKey: 'bookId',
 //     as: 'book',
 // });
 // ////////////////
 
-// //user liên quan review
-// db.user.hasMany(db.review, { as: 'reviewedListBook' });
-// db.review.belongsTo(db.user, {
-//     foreignKey: 'userId',
-//     as: 'user',
-// });
+// user liên quan review
+User.hasMany(Review, { sourceKey: 'id', foreignKey: 'userId', as: 'reviewedListBook' });
+Review.belongsTo(User, { targetKey: 'id' });
 
-// //book liên quan review
-// db.review.belongsTo(db.book, {
-//     foreignKey: 'bookId',
-//     as: 'book',
-// });
-// db.book.hasMany(db.review, { as: 'reviewedListUser' });
+//book liên quan review
+Review.belongsTo(Book, { targetKey: 'id' });
+Book.hasMany(Review, { sourceKey: 'id', foreignKey: 'bookId', as: 'reviewedListUser' });
 
 // ////////////////
 
-// db.user.hasMany(db.likereview, { as: 'likedReviewListReview' });
-// db.likereview.belongsTo(db.user, {
+// User.hasMany(db.likereview, { as: 'likedReviewListReview' });
+// db.likereview.belongsTo(User, {
 //     foreignKey: 'userId',
 //     as: 'user',
 // });
 
-// db.review.hasMany(db.likereview, { as: 'likedReviewListUser' });
-// db.likereview.belongsTo(db.review, {
+// Review.hasMany(db.likereview, { as: 'likedReviewListUser' });
+// db.likereview.belongsTo(Review, {
 //     foreignKey: 'reviewId',
 //     as: 'review',
 // });
 
 // ////////////////
 
-// db.user.hasMany(db.hidereview, { as: 'hidedReviewListReview' });
-// db.hidereview.belongsTo(db.user, {
+// User.hasMany(db.hidereview, { as: 'hidedReviewListReview' });
+// db.hidereview.belongsTo(User, {
 //     foreignKey: 'userId',
 //     as: 'user',
 // });
 
-// db.review.hasMany(db.hidereview, { as: 'hidedReviewListUser' });
-// db.hidereview.belongsTo(db.review, {
+// Review.hasMany(db.hidereview, { as: 'hidedReviewListUser' });
+// db.hidereview.belongsTo(Review, {
 //     foreignKey: 'reviewId',
 //     as: 'review',
 // });
 
 // ///////////////////
-// db.review.afterCreate(async (review, options) => {
-//     db.book
+// Review.afterCreate(async (review, options) => {
+//     Book
 //         .findOne({
 //             where: {
 //                 id: review.bookId,
@@ -112,4 +87,4 @@ export { User, Book };
 //         });
 // });
 
-// export default db;
+export { User, Book, Review };

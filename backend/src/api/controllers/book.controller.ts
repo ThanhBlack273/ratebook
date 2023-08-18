@@ -1,49 +1,21 @@
-import db from '../../models';
+import { User, Book, Review } from '../../models';
 import { Op } from 'sequelize';
-import express, { Express, NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
+import { CreateBookDTO } from '../dto/book.dto';
 
-const Book = db.book;
-const User = db.user;
-const Review = db.review;
-
-export const subBook = (req: Request, res: Response) => {
+export const subBook = async (req: Request, res: Response) => {
     try {
-        Book.create({
-            userId: req.body.userId,
-            ISBN_10: req.body.ISBN_10,
-            ISBN_13: req.body.ISBN_13,
-            title: req.body.title,
-            subtitle: req.body.subtitle,
-            author: req.body.author,
-            publisher: req.body.publisher,
-            publishedDate: req.body.publishedDate,
-            description: req.body.description,
-            smallThumbnail: req.body.smallThumbnail,
-            thumbnail: req.body.thumbnail,
-            small: req.body.small,
-            medium: req.body.medium,
-            large: req.body.large,
-        })
-            .then((book) => {
-                res.status(201).send({
-                    ISBN_10: book.ISBN_10,
-                    ISBN_13: book.ISBN_13,
-                    title: book.title,
-                    subtitle: book.subtitle,
-                    author: book.author,
-                    publisher: book.publisher,
-                    publishedDate: book.publishedDate,
-                    description: book.description,
-                    smallThumbnail: book.smallThumbnail,
-                    thumbnail: book.thumbnail,
-                    small: book.small,
-                    medium: book.medium,
-                    large: book.large,
-                });
-            })
-            .catch((err) => {
-                return res.status(500).send({ error: err.message });
-            });
+        const payload: CreateBookDTO = req.body;
+        const book = await Book.create({
+            ...payload,
+        });
+        if (!book) return res.status(400).send({ error: 'Adding book failed' });
+        return res.status(201).send({
+            ...book.dataValues,
+            createdAt: undefined,
+            updatedAt: undefined,
+            deletedAt: undefined,
+        });
     } catch (err) {
         return res.status(500).send({ error: err.message });
     }
@@ -56,42 +28,37 @@ const getPagingData = (data, page, limit) => {
     return { totalDatas, datas, totalPages, currentPage };
 };
 
-export const getAllBook = (req: Request, res: Response) => {
+export const getAllBook = async (req: Request, res: Response) => {
     try {
         const limit = 10;
-        const page = req.query.page ? req.query.page - 1 : 0;
+        const page = req.query.page ? Number(req.query.page) - 1 : 0;
         const offset = page * limit;
-        Book.findAndCountAll({
+        const book = await Book.findAndCountAll({
             order: [['updatedAt', 'DESC']],
             limit,
             offset,
-        })
-            .then(async (book) => {
-                if (!book) {
-                    return res.status(404).send({ error: 'No books have been registered yet.' });
-                }
-                const response = await getPagingData(book, page + 1, limit);
-                return res.status(200).send({
-                    totalBooks: response.totalDatas,
-                    totalPages: response.totalPages,
-                    currentPage: response.currentPage,
-                    books: response.datas,
-                });
-            })
-            .catch((err) => {
-                return res.status(500).send({ error: err.message });
-            });
+        });
+        if (!book) {
+            return res.status(404).send({ error: 'No books have been registered yet.' });
+        }
+        const response = await getPagingData(book, page + 1, limit);
+        return res.status(200).send({
+            totalBooks: response.totalDatas,
+            totalPages: response.totalPages,
+            currentPage: response.currentPage,
+            books: response.datas,
+        });
     } catch (err) {
         return res.status(500).send({ error: err.message });
     }
 };
 
-export const searchBook = (req: Request, res: Response) => {
+export const searchBook = async (req: Request, res: Response) => {
     try {
         const limit = 10;
-        const page = req.query.page ? req.query.page - 1 : 0;
+        const page = req.query.page ? Number(req.query.page) - 1 : 0;
         const offset = page * limit;
-        Book.findAndCountAll({
+        const book = await Book.findAndCountAll({
             where: {
                 [Op.or]: [
                     {
@@ -109,32 +76,27 @@ export const searchBook = (req: Request, res: Response) => {
             order: [['updatedAt', 'DESC']],
             limit,
             offset,
-        })
-            .then(async (book) => {
-                if (!book) {
-                    return res.status(404).send({ error: 'Can Not Find Your Book' });
-                }
-                const response = await getPagingData(book, page + 1, limit);
-                return res.status(200).send({
-                    totalBooks: response.totalDatas,
-                    totalPages: response.totalPages,
-                    currentPage: response.currentPage,
-                    books: response.datas,
-                });
-            })
-            .catch((err) => {
-                return res.status(500).send({ error: err.message });
-            });
+        });
+        if (!book) {
+            return res.status(404).send({ error: 'Can Not Find Your Book' });
+        }
+        const response = await getPagingData(book, page + 1, limit);
+        return res.status(200).send({
+            totalBooks: response.totalDatas,
+            totalPages: response.totalPages,
+            currentPage: response.currentPage,
+            books: response.datas,
+        });
     } catch (err) {
         return res.status(500).send({ error: err.message });
     }
 };
 
-export const getBookById = (req: Request, res: Response) => {
+export const getBookById = async (req: Request, res: Response) => {
     try {
-        Book.findOne({
+        const book = await Book.findOne({
             where: {
-                id: req.query.id,
+                id: Number(req.query.id),
             },
             attributes: [
                 'id',
@@ -160,30 +122,25 @@ export const getBookById = (req: Request, res: Response) => {
                     attributes: ['id', 'userName', 'avatar'],
                 },
             ],
-        })
-            .then(async (book) => {
-                if (!book) {
-                    return res.status(404).send({ error: 'Can Not Find Your Book' });
-                }
+        });
+        if (!book) {
+            return res.status(404).send({ error: 'Can Not Find Your Book' });
+        }
 
-                return res.status(200).send(book);
-            })
-            .catch((err) => {
-                return res.status(500).send({ error: err.message });
-            });
+        return res.status(200).send(book);
     } catch (err) {
         return res.status(500).send({ error: err.message });
     }
 };
 
-export const getReviewList = (req: Request, res: Response) => {
+export const getReviewList = async (req: Request, res: Response) => {
     try {
         const limit = 10;
-        const page = req.query.page ? req.query.page - 1 : 0;
+        const page = req.query.page ? Number(req.query.page) - 1 : 0;
         const offset = page * limit;
-        Review.findAndCountAll({
+        const review = await Review.findAndCountAll({
             where: {
-                bookId: req.query.id,
+                bookId: Number(req.query.id),
             },
             attributes: ['id', 'rate', 'content', 'photoReview', 'countLike', 'userId', 'bookId', 'updatedAt'],
             include: {
@@ -195,19 +152,15 @@ export const getReviewList = (req: Request, res: Response) => {
             order: [['updatedAt', 'DESC']],
             limit,
             offset,
-        })
-            .then(async (review) => {
-                const response = await getPagingData(review, page + 1, limit);
-                res.status(201).send({
-                    totalBooks: response.totalDatas,
-                    totalPages: response.totalPages,
-                    currentPage: response.currentPage,
-                    reviews: response.datas,
-                });
-            })
-            .catch((err) => {
-                res.status(500).send({ error: err.message });
-            });
+        });
+        if (!review) return res.status(404).send({ error: 'No books have been reviewed yet.' });
+        const response = await getPagingData(review, page + 1, limit);
+        res.status(201).send({
+            totalBooks: response.totalDatas,
+            totalPages: response.totalPages,
+            currentPage: response.currentPage,
+            reviews: response.datas,
+        });
     } catch (err) {
         res.status(500).send({ error: err.message });
     }

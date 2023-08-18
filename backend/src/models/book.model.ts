@@ -1,55 +1,20 @@
-// import { DataTypes } from 'sequelize';
-
-// export const Book = (sequelize, Sequelize) => {
-//     const Book = sequelize.define('book', {
-//         ISBN_10: {
-//             type: Sequelize.STRING,
-//             notNull: true,
-//             unique: true,
-//         },
-//         ISBN_13: {
-//             type: Sequelize.STRING,
-//             notNull: true,
-//             unique: true,
-//         },
-//         title: {
-//             type: Sequelize.STRING,
-//             notNull: true,
-//         },
-//         subtitle: {
-//             type: Sequelize.STRING,
-//         },
-//         author: {
-//             type: Sequelize.ARRAY(Sequelize.STRING),
-//             defaultValue: ['THANH', 'BẢO'],
-//         },
-//         publisher: {
-//             type: Sequelize.STRING,
-//         },
-//         publishedDate: {
-//             type: Sequelize.DATE,
-//         },
-//         description: {
-//             type: Sequelize.TEXT,
-//         },
-//         smallThumbnail: { type: Sequelize.TEXT, defaultValue: 'Không có ảnh' },
-//         thumbnail: { type: Sequelize.TEXT, defaultValue: 'Không có ảnh' },
-//         small: { type: Sequelize.TEXT, defaultValue: 'Không có ảnh' },
-//         medium: { type: Sequelize.TEXT, defaultValue: 'Không có ảnh' },
-//         large: { type: Sequelize.TEXT, defaultValue: 'Không có ảnh' },
-//         star: { type: DataTypes.FLOAT, defaultValue: 0 },
-//         countRate: { type: DataTypes.INTEGER, defaultValue: 0 },
-//     });
-
-//     return Book;
-// };
-
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { DataTypes, Model, ModelStatic, Optional } from 'sequelize';
+import { DataTypes, Model, Optional, Sequelize, ForeignKey } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
+import User from './user.model';
+import Review from './review.model';
 
 interface BookAttributes {
     id: number;
+    userId: ForeignKey<number>;
+
+    // userId: {
+    //     type: number;
+    //     references: {
+    //         model: User;
+    //         key: 'id';
+    //     };
+    // };
     ISBN_10: string;
     ISBN_13: string;
     title: string;
@@ -75,6 +40,14 @@ export interface BookOutput extends Required<BookAttributes> {}
 
 class Book extends Model<BookAttributes, BookrInput> implements BookAttributes {
     public id!: number;
+    public userId!: ForeignKey<number>;
+    // public userId!: {
+    //     type: number;
+    //     references: {
+    //         model: User;
+    //         key: 'id';
+    //     };
+    // };
     public ISBN_10: string;
     public ISBN_13: string;
     public title: string;
@@ -97,6 +70,13 @@ class Book extends Model<BookAttributes, BookrInput> implements BookAttributes {
 
 Book.init(
     {
+        // userId: {
+        //     type: DataTypes.INTEGER.UNSIGNED,
+        //     references: {
+        //         model: User,
+        //         key: 'id',
+        //     },
+        // },
         id: {
             type: DataTypes.INTEGER.UNSIGNED,
             autoIncrement: true,
@@ -145,5 +125,6 @@ Book.init(
         paranoid: true,
     },
 );
+//book liên quan review
 
 export default Book;

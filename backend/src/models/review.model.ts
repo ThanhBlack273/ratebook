@@ -1,24 +1,113 @@
-export const Review = (sequelize, Sequelize) => {
-    const Review = sequelize.define('review', {
+/* eslint-disable @typescript-eslint/no-empty-interface */
+import { DataTypes, Model, Optional, ForeignKey } from 'sequelize';
+import sequelizeConnection from '../config/db.config';
+import User from '../models/user.model';
+import Book from '../models/book.model';
+
+interface ReviewAttributes {
+    id: number;
+    userId: ForeignKey<number>;
+    bookId: ForeignKey<number>;
+    // userId: {
+    //     type: number;
+    //     references: {
+    //         model: User;
+    //         key: 'id';
+    //     };
+    // };
+    // bookId: {
+    //     type: number;
+    //     references: {
+    //         model: Book;
+    //         key: 'id';
+    //     };
+    // };
+    rate: number;
+    content: string;
+    photoReview?: string[];
+    deleted?: boolean;
+    countLike?: number;
+
+    createdAt?: Date;
+    updatedAt?: Date;
+    deletedAt?: Date;
+}
+export interface ReviewInput extends Optional<ReviewAttributes, 'id'> {}
+
+export interface ReviewOutput extends Required<ReviewAttributes> {}
+
+class Review extends Model<ReviewAttributes, ReviewInput> implements ReviewAttributes {
+    public id!: number;
+    public userId!: ForeignKey<number>;
+    public bookId!: ForeignKey<number>;
+    // public userId!: {
+    //     type: number;
+    //     references: {
+    //         model: User;
+    //         key: 'id';
+    //     };
+    // };
+    // public bookId!: {
+    //     type: number;
+    //     references: {
+    //         model: Book;
+    //         key: 'id';
+    //     };
+    // };
+    public rate: number;
+    public content: string;
+    public photoReview?: string[];
+    public deleted?: boolean;
+    public countLike?: number;
+    public readonly createdAt!: Date;
+    public readonly updatedAt!: Date;
+    public readonly deletedAt!: Date;
+}
+
+Review.init(
+    {
+        id: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            autoIncrement: true,
+            primaryKey: true,
+        },
+        // userId: {
+        //     type: DataTypes.INTEGER.UNSIGNED,
+        //     references: {
+        //         model: User,
+        //         key: 'id',
+        //     },
+        // },
+        // bookId: {
+        //     type: DataTypes.INTEGER.UNSIGNED,
+        //     references: {
+        //         model: Book,
+        //         key: 'id',
+        //     },
+        // },
         rate: {
-            type: Sequelize.INTEGER,
-            notNull: true,
+            type: DataTypes.INTEGER,
+            allowNull: false,
         },
         content: {
-            type: Sequelize.TEXT,
-            notNull: true,
+            type: DataTypes.TEXT,
+            allowNull: false,
         },
         photoReview: {
-            type: Sequelize.ARRAY(Sequelize.TEXT),
+            type: DataTypes.ARRAY(DataTypes.TEXT),
         },
         deleted: {
-            type: Sequelize.BOOLEAN,
+            type: DataTypes.BOOLEAN,
             defaultValue: false,
         },
         countLike: {
-            type: Sequelize.INTEGER,
+            type: DataTypes.INTEGER,
         },
-    });
+    },
+    {
+        sequelize: sequelizeConnection,
+        paranoid: true,
+    },
+);
 
-    return Review;
-};
+export default Review;

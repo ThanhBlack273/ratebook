@@ -9,10 +9,10 @@ dotenv.config();
 
 // routes
 import authRoute from './api/routes/auth.routes';
-import userRoute from './api/routes/user.routes';
-import bookRoute from './api/routes/book.routes';
-import actionRoute from './api/routes/action.routes';
-import imageRoute from './api/routes/image.routes';
+// import userRoute from './api/routes/user.routes';
+// import bookRoute from './api/routes/book.routes';
+// import actionRoute from './api/routes/action.routes';
+// import imageRoute from './api/routes/image.routes';
 
 // //reset database
 // db.sequelize.sync({ force: true }).then(() => {
@@ -55,10 +55,10 @@ export const get = () => {
     });
 
     app.use('/api/auth/', authRoute);
-    app.use('/api/user/', userRoute);
-    app.use('/api/book/', bookRoute);
-    app.use('/api/action/', actionRoute);
-    app.use('/api/image/', imageRoute);
+    // app.use('/api/user/', userRoute);
+    // app.use('/api/book/', bookRoute);
+    // app.use('/api/action/', actionRoute);
+    // app.use('/api/image/', imageRoute);
 
     // app.use('/api/v1', routes);
     return app;

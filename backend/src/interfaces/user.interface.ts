@@ -14,4 +14,4 @@ export interface User {
     deletedAt?: Date;
 }
 
-interface Review
+// interface User

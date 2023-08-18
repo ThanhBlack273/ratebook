@@ -1,39 +1,35 @@
 import Validator from 'validatorjs';
-import db from '../models';
+import * as db from '../models';
+import { Table } from 'sequelize-typescript';
 
 Validator.registerAsync(
-    'exist',
-    function (value, args, attribute, passes) {
+    'existUsers',
+    async function (value, args, attribute, passes) {
         try {
-            if (!attribute) throw new Error('Specify Requirements i.e fieldName: exist:table,column');
-            //split table and column
-            const attArr = attribute.split(',');
-            if (attArr.length !== 2) throw new Error(`Invalid format for validation rule on ${attribute}`);
+            // if (!attribute) throw new Error('Specify Requirements i.e fieldName: exist:table,column');
+            // const attArr = attribute.split(',');
+            // if (attArr.length !== 2) throw new Error(`Invalid format for validation rule on ${attribute}`);
 
-            //assign array index 0 and 1 to table and column respectively
-            const { 0: nameTable, 1: nameColumn } = attArr;
+            // //assign array index 0 and 1 to table and column respectively
+            // const { 0: nameTable, 1: nameColumn } = attArr;
 
-            const table = db[nameTable];
-            let msg = `${nameColumn} has problem `;
-            if (nameTable == 'users') {
-                msg = nameColumn == 'email' ? `${nameColumn} has already been taken ` : `${nameColumn} already in use`;
-            } else {
-                msg = 'Your book has already been subscribed';
+            const table = db[args];
+
+            let msg = `${attribute} has problem `;
+            if (args == 'User') {
+                msg = attribute == 'email' ? `${attribute} has already been taken ` : `${attribute} already in use`;
             }
 
-            table
-                .findOne({
-                    where: {
-                        [nameColumn]: value,
-                    },
-                })
-                .then((user) => {
-                    if (user) {
-                        passes(false, msg); // return false if value exists
-                        return;
-                    }
-                    passes(true, 'validated');
-                });
+            const user = await table.findOne({
+                where: {
+                    [attribute]: value,
+                },
+            });
+            if (user) {
+                passes(false, msg); // return false if value exists
+                return;
+            }
+            passes(true, 'validated');
         } catch (err) {
             passes(false, err);
         }
@@ -42,38 +38,30 @@ Validator.registerAsync(
 );
 
 Validator.registerAsync(
-    'exist',
-    function (value, args, attribute, passes) {
+    'existBooks',
+    async function (value, args, attribute, passes) {
         try {
             if (!attribute) throw new Error('Specify Requirements i.e fieldName: exist:table,column');
             //split table and column
-            const attArr = attribute.split(',');
-            if (attArr.length !== 2) throw new Error(`Invalid format for validation rule on ${attribute}`);
+            // const attArr = attribute.split(',');
+            // if (attArr.length !== 2) throw new Error(`Invalid format for validation rule on ${attribute}`);
 
-            //assign array index 0 and 1 to table and column respectively
-            const { 0: nameTable, 1: nameColumn } = attArr;
+            // //assign array index 0 and 1 to table and column respectively
+            // const { 0: nameTable, 1: nameColumn } = attArr;
 
-            const table = db[nameTable];
-            let msg = `${nameColumn} has problem `;
-            if (nameTable == 'users') {
-                msg = nameColumn == 'email' ? `${nameColumn} has already been taken ` : `${nameColumn} already in use`;
-            } else {
-                msg = 'Your book has already been subscribed';
+            const table = db[args];
+            const msg = 'Your book has already been subscribed';
+
+            const user = await table.findOne({
+                where: {
+                    [attribute]: value,
+                },
+            });
+            if (user) {
+                passes(false, msg); // return false if value exists
+                return;
             }
-
-            table
-                .findOne({
-                    where: {
-                        [nameColumn]: value,
-                    },
-                })
-                .then((user) => {
-                    if (user) {
-                        passes(false, msg); // return false if value exists
-                        return;
-                    }
-                    passes();
-                });
+            passes(true, 'validated');
         } catch (err) {
             passes(false, err);
         }

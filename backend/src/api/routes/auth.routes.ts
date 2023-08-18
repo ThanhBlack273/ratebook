@@ -8,7 +8,7 @@ import Router from 'express';
 
 const router = Router();
 
-router.post('/check_duplicate_email', authController.checkDuplicateEmail);
+// router.post('/check_duplicate_email', authController.checkDuplicateEmail);
 
 router.post('/signup', [upload.single('avatar'), validateUser.checkSignup], authController.signup);
 
@@ -18,11 +18,7 @@ router.post('/refresh_token', [authJwt.verifyRefreshToken], authController.refre
 
 router.patch('/change_password', [authJwt.verifyToken], authController.changePassword);
 
-router.patch(
-    '/change_info_user',
-    [upload.single('avatar'), authJwt.verifyToken, validateUser.checkChangeInfo],
-    authController.changeInfoUser,
-);
+router.patch('/change_info_user', [authJwt.verifyToken, validateUser.checkChangeInfo], authController.changeInfoUser);
 
 router.post('/forgot_password', validateUser.checkExistEmail, authController.forgotPassword);
 

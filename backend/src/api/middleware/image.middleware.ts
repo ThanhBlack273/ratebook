@@ -14,6 +14,7 @@ const isValidUrl = (urlString) => {
     ); // validate fragment locator
     return !!urlPattern.test(urlString);
 };
+
 const validLinkImage = async (req: Request, res: Response, next: NextFunction) => {
     try {
         if (req.body.oldLink != undefined || req.body.oldLink.length != 0) {

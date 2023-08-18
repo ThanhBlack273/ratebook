@@ -1,5 +1,5 @@
 import cloudinary from '../../config/cloudinary.config';
-import express, { Express, NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 
 export const upImage = async (req: Request, res: Response) => {
     try {
@@ -23,12 +23,10 @@ export const delImage = async (req: Request, res: Response) => {
         const listLink = req.body.oldLink;
         listLink.forEach(async (element) => {
             await cloudinary.uploader.destroy(element?.split('/').pop().split('.').shift()).catch((err) => {
-                res.status(500).send({ error: err.message });
-                return;
+                return res.status(500).send({ error: err.message });
             });
         });
-        res.status(200).send({});
-        return;
+        return res.status(200).send({});
     } catch (err) {
         res.status(500).send({ error: err.message });
     }

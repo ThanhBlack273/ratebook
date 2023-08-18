@@ -4,8 +4,8 @@ import { NextFunction, Request, Response } from 'express';
 const checkSubBook = (req: Request, res: Response, next: NextFunction) => {
     try {
         const rules = {
-            ISBN_10: 'required|string|exist:book,ISBN_10',
-            ISBN_13: 'required|string|exist:book,ISBN_13',
+            ISBN_10: 'required|string|existBooks:Book',
+            ISBN_13: 'required|string|existBooks:Book',
             title: 'string',
             subtitle: 'string',
             author: 'array',
@@ -39,8 +39,8 @@ const checkSubBook = (req: Request, res: Response, next: NextFunction) => {
 const checkExistBook = (req: Request, res: Response) => {
     try {
         const rules = {
-            ISBN_10: 'required|string|exist:book,ISBN_10',
-            ISBN_13: 'required|string|exist:book,ISBN_13',
+            ISBN_10: 'required|string|existBooks:book,ISBN_10',
+            ISBN_13: 'required|string|existBooks:book,ISBN_13',
         };
 
         const validation = new Validator(req.query, rules, {});
