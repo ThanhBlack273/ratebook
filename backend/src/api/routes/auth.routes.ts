@@ -16,12 +16,13 @@ router.post('/signin', authController.signin);
 
 router.post('/refresh_token', [authJwt.verifyRefreshToken], authController.refreshToken);
 
-router.patch('/change_password', [authJwt.verifyToken], authController.changePassword);
-
-router.patch('/change_info_user', [authJwt.verifyToken, validateUser.checkChangeInfo], authController.changeInfoUser);
-
 router.post('/forgot_password', validateUser.checkExistEmail, authController.forgotPassword);
 
-router.post('/reset_password', [authJwt.verifyToken], authController.resetPassword);
+router.use(authJwt.verifyToken);
+router.patch('/change_password', authController.changePassword);
+
+router.patch('/change_info_user', [validateUser.checkChangeInfo], authController.changeInfoUser);
+
+router.post('/reset_password', authController.resetPassword);
 
 export default router;

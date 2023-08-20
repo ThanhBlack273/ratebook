@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { DataTypes, Model, Optional, ForeignKey } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
-import User from '../models/user.model';
-import Book from '../models/book.model';
 
 interface ReviewAttributes {
     id: number;
@@ -67,19 +65,19 @@ class Review extends Model<ReviewAttributes, ReviewInput> implements ReviewAttri
 Review.init(
     {
         id: {
-            type: DataTypes.INTEGER.UNSIGNED,
+            type: DataTypes.INTEGER,
             autoIncrement: true,
             primaryKey: true,
         },
         // userId: {
-        //     type: DataTypes.INTEGER.UNSIGNED,
+        //     type: DataTypes.INTEGER,
         //     references: {
         //         model: User,
         //         key: 'id',
         //     },
         // },
         // bookId: {
-        //     type: DataTypes.INTEGER.UNSIGNED,
+        //     type: DataTypes.INTEGER,
         //     references: {
         //         model: Book,
         //         key: 'id',

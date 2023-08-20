@@ -1,10 +1,7 @@
 import Validator from '../../helpers/validate';
-import db from '../../models';
-const Review = db.review;
-const LikeBook = db.likebook;
-const LikeReview = db.likereview;
-const HideReview = db.hidereview;
-import { Op } from 'sequelize';
+
+import { Review, LikeBook, HideReview, LikeReview } from '../../models';
+
 import { NextFunction, Request, Response } from 'express';
 
 const checkAddReview = (req: Request, res: Response, next: NextFunction) => {
@@ -25,7 +22,7 @@ const checkAddReview = (req: Request, res: Response, next: NextFunction) => {
             for (const err in errors) {
                 error[err] = Array.prototype.join.call(errors[err], '. ');
             }
-            res.status(422).send({
+            return res.status(422).send({
                 error: error,
             });
         });
@@ -34,95 +31,72 @@ const checkAddReview = (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-const checkExistReview = (req: Request, res: Response, next: NextFunction) => {
+const checkExistReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        Review.findOne({
+        const review = await Review.findOne({
             where: {
-                [Op.and]: [
-                    {
-                        userId: req.body.userId,
-                    },
-                    {
-                        bookId: req.body.bookId,
-                    },
-                ],
+                userId: req.body.userId,
+                bookId: req.body.bookId,
             },
-        }).then((review) => {
-            if (review) {
-                res.status(200).send({
-                    error: 'You have already reviewed this book',
-                });
-                return;
-            }
-            next();
         });
+        if (review) {
+            return res.status(200).send({
+                error: 'You have already reviewed this book',
+            });
+        }
+        next();
     } catch (err) {
         res.status(500).send({ error: err.message });
     }
 };
 
-export const likeBookExist = (req: Request, res: Response, next: NextFunction) => {
+export const likeBookExist = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        LikeBook.findOne({
+        const liked = await LikeBook.findOne({
             where: {
                 bookId: req.body.bookId,
                 userId: req.body.userId,
             },
-        })
-            .then((liked) => {
-                if (liked) {
-                    liked.destroy({ force: true });
-                    return res.status(201).send({ liked: false });
-                }
-                next();
-            })
-            .catch((err) => {
-                return res.status(500).send({ error: err.message });
-            });
+        });
+        if (liked) {
+            liked.destroy({ force: true });
+            return res.status(201).send({ liked: false });
+        }
+        next();
     } catch (err) {
         res.status(500).send({ error: err.message });
     }
 };
-export const likeReviewExist = (req: Request, res: Response, next: NextFunction) => {
+export const likeReviewExist = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        LikeReview.findOne({
+        const liked = await LikeReview.findOne({
             where: {
                 reviewId: req.body.reviewId,
                 userId: req.body.userId,
             },
-        })
-            .then((liked) => {
-                if (liked) {
-                    liked.destroy({ force: true });
-                    return res.status(201).send({ liked: false });
-                }
-                next();
-            })
-            .catch((err) => {
-                return res.status(500).send({ error: err.message });
-            });
+        });
+        if (liked) {
+            liked.destroy({ force: true });
+            return res.status(201).send({ liked: false });
+        }
+        next();
     } catch (err) {
         res.status(500).send({ error: err.message });
     }
 };
-export const hideReviewExist = (req: Request, res: Response, next: NextFunction) => {
+export const hideReviewExist = async (req: Request, res: Response, next: NextFunction) => {
     try {
-        HideReview.findOne({
+        const hided = await HideReview.findOne({
             where: {
                 reviewId: req.body.reviewId,
                 userId: req.body.userId,
             },
-        })
-            .then((hided) => {
-                if (hided) {
-                    hided.destroy({ force: true });
-                    return res.status(201).send({ hided: false });
-                }
-                next();
-            })
-            .catch((err) => {
-                return res.status(500).send({ error: err.message });
-            });
+        });
+        if (hided) {
+            hided.destroy({ force: true });
+            return res.status(201).send({ hided: false });
+        }
+        next();
     } catch (err) {
         res.status(500).send({ error: err.message });
     }

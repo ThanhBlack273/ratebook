@@ -1,10 +1,10 @@
-import { Sequelize } from 'sequelize';
+// import { Sequelize } from 'sequelize';
 import User from './user.model';
 import Book from './book.model';
 import Review from './review.model';
-import { LikeBook } from './likeBook.model';
-import { LikeReview } from './likeReview.model';
-import { HideReview } from './hideReview.model';
+import LikeBook from './likeBook.model';
+import LikeReview from './likeReview.model';
+import HideReview from './hideReview.model';
 
 // //user sub book
 // User.hasMany(Book, { as: 'subcribedListBook' });
@@ -18,18 +18,18 @@ import { HideReview } from './hideReview.model';
 
 //user sub book
 User.hasMany(Book, { sourceKey: 'id', foreignKey: 'userId', as: 'subcribedListBook' });
-Book.belongsTo(User, { targetKey: 'id' });
+// Book.belongsTo(User, { targetKey: 'id' });
 // ////////////////
 
 // //user like sách
-// User.hasMany(db.likebook, { as: 'likedListBook' });
-// db.likebook.belongsTo(User, {
+User.hasMany(LikeBook, { sourceKey: 'id', foreignKey: 'userId', as: 'likedListBook' });
+// LikeBook.belongsTo(User, {
 //     foreignKey: 'userId',
 //     as: 'user',
 // });
 
-// Book.hasMany(db.likebook, { as: 'likedListUser' });
-// db.likebook.belongsTo(Book, {
+Book.hasMany(LikeBook, { sourceKey: 'id', foreignKey: 'bookId', as: 'likedListUser' });
+// LikeBook.belongsTo(Book, {
 //     foreignKey: 'bookId',
 //     as: 'book',
 // });
@@ -37,36 +37,36 @@ Book.belongsTo(User, { targetKey: 'id' });
 
 // user liên quan review
 User.hasMany(Review, { sourceKey: 'id', foreignKey: 'userId', as: 'reviewedListBook' });
-Review.belongsTo(User, { targetKey: 'id' });
+// Review.belongsTo(User, { targetKey: 'id' });
 
 //book liên quan review
-Review.belongsTo(Book, { targetKey: 'id' });
+// Review.belongsTo(Book, { targetKey: 'id' });
 Book.hasMany(Review, { sourceKey: 'id', foreignKey: 'bookId', as: 'reviewedListUser' });
 
 // ////////////////
 
-// User.hasMany(db.likereview, { as: 'likedReviewListReview' });
-// db.likereview.belongsTo(User, {
+User.hasMany(LikeReview, { sourceKey: 'id', foreignKey: 'userId', as: 'likedReviewListReview' });
+// LikeReview.belongsTo(User, {
 //     foreignKey: 'userId',
 //     as: 'user',
 // });
 
-// Review.hasMany(db.likereview, { as: 'likedReviewListUser' });
-// db.likereview.belongsTo(Review, {
+Review.hasMany(LikeReview, { sourceKey: 'id', foreignKey: 'reviewId', as: 'likedReviewListUser' });
+// LikeReview.belongsTo(Review, {
 //     foreignKey: 'reviewId',
 //     as: 'review',
 // });
 
 // ////////////////
 
-// User.hasMany(db.hidereview, { as: 'hidedReviewListReview' });
-// db.hidereview.belongsTo(User, {
+User.hasMany(HideReview, { sourceKey: 'id', foreignKey: 'userId', as: 'hidedReviewListReview' });
+// HideReview.belongsTo(User, {
 //     foreignKey: 'userId',
 //     as: 'user',
 // });
 
-// Review.hasMany(db.hidereview, { as: 'hidedReviewListUser' });
-// db.hidereview.belongsTo(Review, {
+Review.hasMany(HideReview, { sourceKey: 'id', foreignKey: 'reviewId', as: 'hidedReviewListUser' });
+// HideReview.belongsTo(Review, {
 //     foreignKey: 'reviewId',
 //     as: 'review',
 // });
@@ -87,4 +87,4 @@ Book.hasMany(Review, { sourceKey: 'id', foreignKey: 'bookId', as: 'reviewedListU
 //         });
 // });
 
-export { User, Book, Review };
+export { User, Book, Review, LikeBook, LikeReview, HideReview };

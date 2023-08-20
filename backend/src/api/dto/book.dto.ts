@@ -25,13 +25,3 @@ export type QueryBookDTO = {
     ISBN_13: string;
     page: number;
 };
-
-// export interface UpdateUserDTO extends CreateUserDTO {
-//     newPassword?: string;
-//     confirmNewPassword?: string;
-// }
-
-export type FilterIngredientsDTO = {
-    isDeleted?: boolean;
-    includeDeleted?: boolean;
-};
