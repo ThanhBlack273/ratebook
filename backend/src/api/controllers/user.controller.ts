@@ -15,7 +15,7 @@ export const getUserById = async (req: Request, res: Response) => {
             where: {
                 id: Number(req.query.id),
             },
-            attributes: ['id', 'email', 'userName', 'dateOfBirth', 'phoneNumber', 'avatar'],
+            attributes: ['id', 'email', 'userName', 'dateOfBirth', 'phoneNumber', 'avatar', 'device'],
         });
         if (!user) {
             return res.status(404).send({ error: 'Can Not Find User Data' });

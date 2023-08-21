@@ -9,7 +9,7 @@ interface LikeBookAttributes {
 
     createdAt?: Date;
     updatedAt?: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 
 export interface LikeBookInput extends Optional<LikeBookAttributes, 'id'> {}
@@ -22,7 +22,7 @@ class LikeBook extends Model<LikeBookAttributes, LikeBookInput> implements LikeB
     public bookId!: ForeignKey<number>;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
+    // public readonly deletedAt!: Date;
 }
 
 LikeBook.init(
@@ -35,7 +35,8 @@ LikeBook.init(
     },
     {
         sequelize: sequelizeConnection,
-        paranoid: true,
+        //paranoid: true,
+        tableName: 'like_books',
     },
 );
 

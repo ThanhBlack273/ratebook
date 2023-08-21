@@ -37,7 +37,56 @@ const checkChangeInfo = (req: Request, res: Response, next: NextFunction) => {
         const rules = {
             userName: 'required|string',
             dateOfBirth: 'required|string',
-            phoneNumber: 'required|string|min:10|max:10|exist:user,phoneNumber',
+            phoneNumber: 'required|string|min:10|max:10',
+        };
+
+        const validation = new Validator(req.body, rules, {});
+        validation.passes(() => next());
+        validation.fails(async () => {
+            const error = {};
+            const errors = validation.errors.all();
+            for (const err in errors) {
+                error[err] = Array.prototype.join.call(errors[err], '. ');
+            }
+            return res.status(422).send({
+                error: error,
+            });
+        });
+    } catch (err) {
+        return res.status(500).send({ error: err.message });
+    }
+};
+
+const checkChangePass = (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const rules = {
+            password: 'required|string|min:8|strictPassword',
+            newPassword: 'required|string|min:8|strictPassword',
+            confirmNewPassword: 'required|string|min:8|strictPassword',
+        };
+
+        const validation = new Validator(req.body, rules, {});
+        validation.passes(() => next());
+        validation.fails(async () => {
+            const error = {};
+            const errors = validation.errors.all();
+            for (const err in errors) {
+                error[err] = Array.prototype.join.call(errors[err], '. ');
+            }
+            return res.status(422).send({
+                error: error,
+            });
+        });
+    } catch (err) {
+        return res.status(500).send({ error: err.message });
+    }
+};
+
+const checkResetPass = (req: Request, res: Response, next: NextFunction) => {
+    try {
+        const rules = {
+            newPassword: 'required|string|min:8|strictPassword',
+            confirmNewPassword: 'required|string|min:8|strictPassword',
         };
 
         const validation = new Validator(req.body, rules, {});
@@ -78,6 +127,8 @@ const checkExistEmail = async (req: Request, res: Response, next: NextFunction) 
 const validateUser = {
     checkSignup: checkSignup,
     checkChangeInfo: checkChangeInfo,
+    checkChangePass: checkChangePass,
+    checkResetPass: checkResetPass,
     checkExistEmail: checkExistEmail,
 };
 export default validateUser;

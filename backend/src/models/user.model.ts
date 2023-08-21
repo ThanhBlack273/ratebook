@@ -17,7 +17,7 @@ interface UserAttributes {
     device?: string;
     createdAt?: Date;
     updatedAt?: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 export interface UserInput extends Optional<UserAttributes, 'id'> {}
 
@@ -37,7 +37,7 @@ class User extends Model<UserAttributes, UserInput> implements UserAttributes {
 
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
+    // public readonly deletedAt!: Date;
 }
 
 User.init(
@@ -86,7 +86,8 @@ User.init(
     },
     {
         sequelize: sequelizeConnection,
-        paranoid: true,
+        //paranoid: true,
+        tableName: 'users',
     },
 );
 

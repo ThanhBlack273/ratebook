@@ -11,7 +11,7 @@ export interface User {
     device?: string[];
     createdAt: Date;
     updatedAt: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 
 // interface User

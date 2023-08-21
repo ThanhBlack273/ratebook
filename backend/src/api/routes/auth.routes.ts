@@ -22,10 +22,10 @@ router.use(authJwt.verifyToken);
 
 router.put('/logout', authController.logout);
 
-router.patch('/change_password', authController.changePassword);
+router.patch('/change_password', validateUser.checkChangePass, authController.changePassword);
 
 router.patch('/change_info_user', validateUser.checkChangeInfo, authController.changeInfoUser);
 
-router.post('/reset_password', authController.resetPassword);
+router.post('/reset_password', validateUser.checkResetPass, authController.resetPassword);
 
 export default router;

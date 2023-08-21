@@ -15,7 +15,7 @@ export const subBook = async (req: Request, res: Response) => {
             ...book.dataValues,
             createdAt: undefined,
             updatedAt: undefined,
-            deletedAt: undefined,
+            // deletedAt: undefined,
         });
     } catch (err) {
         return res.status(500).send({ error: err.message });
@@ -97,7 +97,7 @@ export const getBookById = async (req: Request, res: Response) => {
     try {
         const book = await Book.findOne({
             where: {
-                id: Number(req.query.id),
+                id: Number(req.params.id),
             },
             attributes: [
                 'id',
@@ -119,7 +119,7 @@ export const getBookById = async (req: Request, res: Response) => {
             include: [
                 {
                     model: User,
-                    as: 'subByUser',
+                    as: 'User',
                     attributes: ['id', 'userName', 'avatar'],
                 },
                 {
@@ -167,13 +167,12 @@ export const getReviewList = async (req: Request, res: Response) => {
             ],
         });
         const arrayReviewHide = await listHide.hidedReviewListReview.map((object) => object.reviewId);
-
         const review = await Review.findAndCountAll({
             where: {
                 id: {
                     [Op.notIn]: arrayReviewHide,
                 },
-                bookId: Number(req.query.id),
+                bookId: Number(req.params.id),
                 deleted: false,
             },
             attributes: ['id', 'rate', 'content', 'photoReview', 'countLike', 'userId', 'bookId', 'updatedAt'],
@@ -199,6 +198,7 @@ export const getReviewList = async (req: Request, res: Response) => {
             offset,
         });
         if (!review) return res.status(404).send({ error: 'No books have been reviewed yet.' });
+
         const response = await getPagingData(review, page + 1, limit);
         res.status(201).send({
             totalBooks: response.totalDatas,

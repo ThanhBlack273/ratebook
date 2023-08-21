@@ -17,6 +17,6 @@ router.post('/subscribe_book', validateBook.checkSubBook, bookController.subBook
 
 router.get('/:id', bookController.getBookById);
 
-router.get('/:bookId/get_review_list', bookController.getReviewList);
+router.get('/:id/get_review_list', bookController.getReviewList);
 
 export default router;

@@ -51,15 +51,13 @@ Validator.registerAsync(
 
             const table = db[args];
             const msg = 'Your book has already been subscribed';
-
-            const user = await table.findOne({
+            const result = await table.findOne({
                 where: {
                     [attribute]: value,
                 },
             });
-            if (user) {
-                passes(false, msg); // return false if value exists
-                return;
+            if (result) {
+                return passes(false, msg); // return false if value exists
             }
             passes(true, 'validated');
         } catch (err) {

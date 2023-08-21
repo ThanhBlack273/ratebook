@@ -33,7 +33,7 @@ export const signup = async (req: Request, res: Response) => {
             secretAns: undefined,
             createdAt: undefined,
             updatedAt: undefined,
-            deletedAt: undefined,
+            // deletedAt: undefined,
         });
     } catch (err) {
         res.status(500).send({ error: err.message });
@@ -84,7 +84,7 @@ export const signin = async (req: Request, res: Response) => {
             secretAns: undefined,
             createdAt: undefined,
             updatedAt: undefined,
-            deletedAt: undefined,
+            // deletedAt: undefined,
         };
         const token = await jwt.sign({ id: userInfo.id, email: userInfo.email }, config.secret, {
             algorithm: 'HS256',
@@ -255,6 +255,7 @@ export const changeInfoUser = async (req: Request, res: Response) => {
                     dateOfBirth: newUser.dateOfBirth,
                     phoneNumber: newUser.phoneNumber,
                     avatar: newUser.avatar,
+                    device: newUser.device,
                 },
             });
         } else {
@@ -307,6 +308,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
                 error: 'Wrong Answer Secret!',
             });
         }
+
         const token = jwt.sign({ id: user.id, email: user.email }, config.secret, {
             algorithm: 'HS256',
             allowInsecureKeySizes: true,

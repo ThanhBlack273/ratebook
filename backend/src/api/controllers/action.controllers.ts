@@ -115,49 +115,49 @@ export const getAllReview = async (req: Request, res: Response) => {
     }
 };
 
-export const getReviewById = async (req, res) => {
-    try {
-        const review = await Review.findOne({
-            where: {
-                id: req.query.id,
-                deleted: false,
-            },
-            attributes: ['id', 'rate', 'content', 'photoReview', 'countLike', 'userId', 'bookId'],
-            include: [
-                {
-                    model: Book,
-                    as: 'Book',
-                    attributes: ['id', 'title', 'subtitle', 'author', 'smallThumbnail', 'thumbnail', 'updatedAt'],
-                },
-                {
-                    model: User,
-                    as: 'User',
-                    attributes: ['id', 'userName', 'avatar', 'device'],
-                },
-                {
-                    model: LikeReview,
-                    as: 'likedReviewListUser',
-                    attributes: ['id', 'userId', 'reviewId'],
-                    where: {
-                        '$likedReviewListUser.userId$': res.locals.id,
-                        //'$likedReviewListUser.reviewId$': 4,
-                    },
-                    required: false,
-                    duplicating: false,
-                },
-            ],
-        });
-        if (review) {
-            if (!review) {
-                return res.status(404).send({ error: 'Can Not Find Your Review' });
-            }
+// export const getReviewById = async (req, res) => {
+//     try {
+//         const review = await Review.findOne({
+//             where: {
+//                 id: req.query.id,
+//                 deleted: false,
+//             },
+//             attributes: ['id', 'rate', 'content', 'photoReview', 'countLike', 'userId', 'bookId'],
+//             include: [
+//                 {
+//                     model: Book,
+//                     as: 'Book',
+//                     attributes: ['id', 'title', 'subtitle', 'author', 'smallThumbnail', 'thumbnail', 'updatedAt'],
+//                 },
+//                 {
+//                     model: User,
+//                     as: 'User',
+//                     attributes: ['id', 'userName', 'avatar', 'device'],
+//                 },
+//                 {
+//                     model: LikeReview,
+//                     as: 'likedReviewListUser',
+//                     attributes: ['id', 'userId', 'reviewId'],
+//                     where: {
+//                         '$likedReviewListUser.userId$': res.locals.id,
+//                         //'$likedReviewListUser.reviewId$': 4,
+//                     },
+//                     required: false,
+//                     duplicating: false,
+//                 },
+//             ],
+//         });
+//         if (review) {
+//             if (!review) {
+//                 return res.status(404).send({ error: 'Can Not Find Your Review' });
+//             }
 
-            return res.status(200).send(review);
-        }
-    } catch (err) {
-        return res.status(500).send({ error: err.message });
-    }
-};
+//             return res.status(200).send(review);
+//         }
+//     } catch (err) {
+//         return res.status(500).send({ error: err.message });
+//     }
+// };
 
 export const likeBook = async (req: Request, res: Response) => {
     try {
@@ -238,15 +238,19 @@ export const noti = async (req, res) => {
         const offset = page * limit;
         const noti = await Notification.findAndCountAll({
             where: { toUserId: res.locals.id },
+            attributes: ['id', 'isSeen', 'type', 'toUserId', 'fromUserId', 'reviewId', 'bookId'],
             include: [
                 {
                     model: User,
-                    as: 'toUserId',
+                    // foreignKey: 'toUserId',
+                    as: 'toUser',
                     attributes: ['id', 'userName', 'avatar', 'device'],
                 },
                 {
+                    // foreignKey: 'fromUserId',
+
                     model: User,
-                    as: 'fromUserId',
+                    as: 'fromUser',
                     attributes: ['id', 'userName', 'avatar', 'device'],
                 },
                 {

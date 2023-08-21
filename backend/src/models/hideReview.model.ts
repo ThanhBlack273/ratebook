@@ -9,7 +9,7 @@ interface HideReviewAttributes {
 
     createdAt?: Date;
     updatedAt?: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 
 export interface HideReviewInput extends Optional<HideReviewAttributes, 'id'> {}
@@ -22,7 +22,7 @@ class HideReview extends Model<HideReviewAttributes, HideReviewInput> implements
     public reviewId!: ForeignKey<number>;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
+    // public readonly deletedAt!: Date;
 }
 
 HideReview.init(
@@ -35,7 +35,8 @@ HideReview.init(
     },
     {
         sequelize: sequelizeConnection,
-        paranoid: true,
+        //paranoid: true,
+        tableName: 'hide_reviews',
     },
 );
 

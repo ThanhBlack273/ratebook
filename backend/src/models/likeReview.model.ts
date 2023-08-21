@@ -22,7 +22,7 @@ class LikeReview extends Model<LikeReviewAttributes, LikeReviewInput> implements
     public reviewId!: ForeignKey<number>;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
+    // public readonly deletedAt!: Date;
 }
 
 LikeReview.init(
@@ -35,7 +35,8 @@ LikeReview.init(
     },
     {
         sequelize: sequelizeConnection,
-        paranoid: true,
+        //paranoid: true,
+        tableName: 'like_reviews',
     },
 );
 

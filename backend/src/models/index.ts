@@ -64,10 +64,10 @@ HideReview.belongsTo(Review, {
 
 ///////////////
 User.hasMany(Notification, { sourceKey: 'id', foreignKey: 'fromUserId', as: 'notiFromUser' });
-Notification.belongsTo(User, { targetKey: 'id', foreignKey: 'fromUserId' });
+Notification.belongsTo(User, { targetKey: 'id', foreignKey: 'fromUserId', as: 'fromUser' });
 
 User.hasMany(Notification, { sourceKey: 'id', foreignKey: 'toUserId', as: 'notiToUser' });
-Notification.belongsTo(User, { targetKey: 'id', foreignKey: 'toUserId' });
+Notification.belongsTo(User, { targetKey: 'id', foreignKey: 'toUserId', as: 'toUser' });
 
 Review.hasMany(Notification, { sourceKey: 'id', foreignKey: 'reviewId', as: 'notiReview' });
 Notification.belongsTo(Review, { targetKey: 'id', foreignKey: 'reviewId' });

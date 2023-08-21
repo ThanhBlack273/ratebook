@@ -33,19 +33,19 @@
 // require('dotenv').config();
 import { Sequelize } from 'sequelize';
 
-// const dbName = 'railway'; //process.env.DB_NAME;
-// const dbUser = 'postgres'; //process.env.DB_USER;
-// const dbHost = 'containers-us-west-70.railway.app'; //process.env.DB_HOST;
-// const dbDriver = 'postgres'; //process.env.DB_DRIVER;
-// const dbPassword = 'vx3HtNyYKaxngPU6R2T3'; //process.env.DB_PASSWORD;
-// const dbPort = 6164;
-
-const dbName = 'formatcode'; //process.env.DB_NAME;
+const dbName = 'railway'; //process.env.DB_NAME;
 const dbUser = 'postgres'; //process.env.DB_USER;
-const dbHost = 'localhost'; //process.env.DB_HOST;
+const dbHost = 'containers-us-west-192.railway.app'; //process.env.DB_HOST;
 const dbDriver = 'postgres'; //process.env.DB_DRIVER;
-const dbPassword = 'Thanh!@2703201'; //process.env.DB_PASSWORD;
-const dbPort = 5432;
+const dbPassword = '5wzAKl4vI1WSE6DYl3BF'; //process.env.DB_PASSWORD;
+const dbPort = 5918;
+
+// const dbName = 'formatcode'; //process.env.DB_NAME;
+// const dbUser = 'postgres'; //process.env.DB_USER;
+// const dbHost = 'localhost'; //process.env.DB_HOST;
+// const dbDriver = 'postgres'; //process.env.DB_DRIVER;
+// const dbPassword = 'Thanh!@2703201'; //process.env.DB_PASSWORD;
+// const dbPort = 5432;
 
 const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
     host: dbHost,

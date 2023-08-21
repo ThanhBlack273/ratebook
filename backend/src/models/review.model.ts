@@ -15,7 +15,7 @@ interface ReviewAttributes {
 
     createdAt?: Date;
     updatedAt?: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 export interface ReviewInput extends Optional<ReviewAttributes, 'id'> {}
 
@@ -33,8 +33,8 @@ class Review extends Model<ReviewAttributes, ReviewInput> implements ReviewAttri
     public countLike?: number;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
-    _previousDataValues: any;
+    // public readonly deletedAt!: Date;
+    _previousDataValues: Review;
 }
 
 Review.init(
@@ -79,7 +79,8 @@ Review.init(
     },
     {
         sequelize: sequelizeConnection,
-        paranoid: true,
+        //paranoid: true,
+        tableName: 'reviews',
     },
 );
 

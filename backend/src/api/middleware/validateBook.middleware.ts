@@ -39,8 +39,8 @@ const checkSubBook = (req: Request, res: Response, next: NextFunction) => {
 const checkExistBook = (req: Request, res: Response) => {
     try {
         const rules = {
-            ISBN_10: 'required|string|existBooks:book,ISBN_10',
-            ISBN_13: 'required|string|existBooks:book,ISBN_13',
+            ISBN_10: 'required|string|existBooks:Book',
+            ISBN_13: 'required|string|existBooks:Book',
         };
 
         const validation = new Validator(req.query, rules, {});

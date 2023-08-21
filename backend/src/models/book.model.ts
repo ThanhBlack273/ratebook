@@ -32,7 +32,7 @@ interface BookAttributes {
     countRate: number;
     createdAt?: Date;
     updatedAt?: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 export interface BookrInput extends Optional<BookAttributes, 'id'> {}
 
@@ -65,7 +65,7 @@ class Book extends Model<BookAttributes, BookrInput> implements BookAttributes {
     public countRate: number;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
+    // public readonly deletedAt!: Date;
 }
 
 Book.init(
@@ -122,7 +122,8 @@ Book.init(
     },
     {
         sequelize: sequelizeConnection,
-        paranoid: true,
+        //paranoid: true,
+        tableName: 'books',
     },
 );
 //book liên quan review

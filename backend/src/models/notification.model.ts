@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { DataTypes, Model, Optional, ForeignKey } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
+import User from './user.model';
 
 interface NotificationAttributes {
     id: number;
@@ -13,7 +14,7 @@ interface NotificationAttributes {
 
     createdAt?: Date;
     updatedAt?: Date;
-    deletedAt?: Date;
+    // deletedAt?: Date;
 }
 
 export interface NotificationInput extends Optional<NotificationAttributes, 'id'> {}
@@ -22,15 +23,15 @@ export interface NotificationOutput extends Required<NotificationAttributes> {}
 
 class Notification extends Model<NotificationAttributes, NotificationInput> implements NotificationAttributes {
     public id!: number;
-    public fromUserId!: ForeignKey<number>;
-    public toUserId!: ForeignKey<number>;
+    public fromUserId!: ForeignKey<User['id']>;
+    public toUserId!: ForeignKey<User['id']>;
     public bookId?: ForeignKey<number>;
     public reviewId?: ForeignKey<number>;
     public isSeen!: boolean;
     public type!: string;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
-    public readonly deletedAt!: Date;
+    // public readonly deletedAt!: Date;
 }
 
 Notification.init(
@@ -52,7 +53,8 @@ Notification.init(
     },
     {
         sequelize: sequelizeConnection,
-        paranoid: true,
+        //paranoid: true,
+        tableName: 'notifications',
     },
 );
 
