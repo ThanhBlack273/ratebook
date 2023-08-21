@@ -28,7 +28,7 @@ interface BookAttributes {
     small: Text;
     medium: Text;
     large: Text;
-    star: Text;
+    star: string;
     countRate: number;
     createdAt?: Date;
     updatedAt?: Date;
@@ -61,7 +61,7 @@ class Book extends Model<BookAttributes, BookrInput> implements BookAttributes {
     public small: Text;
     public medium: Text;
     public large: Text;
-    public star: Text;
+    public star: string;
     public countRate: number;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
@@ -117,7 +117,7 @@ Book.init(
         small: { type: DataTypes.TEXT, defaultValue: 'Không có ảnh' },
         medium: { type: DataTypes.TEXT, defaultValue: 'Không có ảnh' },
         large: { type: DataTypes.TEXT, defaultValue: 'Không có ảnh' },
-        star: { type: DataTypes.FLOAT, defaultValue: 0 },
+        star: { type: DataTypes.STRING, defaultValue: 0 },
         countRate: { type: DataTypes.INTEGER, defaultValue: 0 },
     },
     {

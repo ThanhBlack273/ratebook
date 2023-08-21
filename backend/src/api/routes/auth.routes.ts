@@ -8,20 +8,23 @@ import Router from 'express';
 
 const router = Router();
 
-// router.post('/check_duplicate_email', authController.checkDuplicateEmail);
+router.post('/check_duplicate_email', authController.checkDuplicateEmail);
 
-router.post('/signup', [upload.single('avatar'), validateUser.checkSignup], authController.signup);
+router.post('/signup', validateUser.checkSignup, authController.signup);
 
 router.post('/signin', authController.signin);
 
-router.post('/refresh_token', [authJwt.verifyRefreshToken], authController.refreshToken);
+router.post('/refresh_token', authJwt.verifyRefreshToken, authController.refreshToken);
 
 router.post('/forgot_password', validateUser.checkExistEmail, authController.forgotPassword);
 
 router.use(authJwt.verifyToken);
+
+router.put('/logout', authController.logout);
+
 router.patch('/change_password', authController.changePassword);
 
-router.patch('/change_info_user', [validateUser.checkChangeInfo], authController.changeInfoUser);
+router.patch('/change_info_user', validateUser.checkChangeInfo, authController.changeInfoUser);
 
 router.post('/reset_password', authController.resetPassword);
 

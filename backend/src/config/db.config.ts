@@ -40,11 +40,11 @@ import { Sequelize } from 'sequelize';
 // const dbPassword = 'vx3HtNyYKaxngPU6R2T3'; //process.env.DB_PASSWORD;
 // const dbPort = 6164;
 
-const dbName = 'te'; //process.env.DB_NAME;
+const dbName = 'formatcode'; //process.env.DB_NAME;
 const dbUser = 'postgres'; //process.env.DB_USER;
 const dbHost = 'localhost'; //process.env.DB_HOST;
 const dbDriver = 'postgres'; //process.env.DB_DRIVER;
-const dbPassword = 'abc123'; //process.env.DB_PASSWORD;
+const dbPassword = 'Thanh!@2703201'; //process.env.DB_PASSWORD;
 const dbPort = 5432;
 
 const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {

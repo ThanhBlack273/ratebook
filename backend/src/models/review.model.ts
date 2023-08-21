@@ -6,20 +6,7 @@ interface ReviewAttributes {
     id: number;
     userId: ForeignKey<number>;
     bookId: ForeignKey<number>;
-    // userId: {
-    //     type: number;
-    //     references: {
-    //         model: User;
-    //         key: 'id';
-    //     };
-    // };
-    // bookId: {
-    //     type: number;
-    //     references: {
-    //         model: Book;
-    //         key: 'id';
-    //     };
-    // };
+
     rate: number;
     content: string;
     photoReview?: string[];
@@ -38,20 +25,7 @@ class Review extends Model<ReviewAttributes, ReviewInput> implements ReviewAttri
     public id!: number;
     public userId!: ForeignKey<number>;
     public bookId!: ForeignKey<number>;
-    // public userId!: {
-    //     type: number;
-    //     references: {
-    //         model: User;
-    //         key: 'id';
-    //     };
-    // };
-    // public bookId!: {
-    //     type: number;
-    //     references: {
-    //         model: Book;
-    //         key: 'id';
-    //     };
-    // };
+
     public rate: number;
     public content: string;
     public photoReview?: string[];
@@ -60,6 +34,7 @@ class Review extends Model<ReviewAttributes, ReviewInput> implements ReviewAttri
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
     public readonly deletedAt!: Date;
+    _previousDataValues: any;
 }
 
 Review.init(

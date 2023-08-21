@@ -82,7 +82,6 @@ User.init(
         device: {
             // type: DataTypes.ARRAY(DataTypes.TEXT),
             type: DataTypes.TEXT,
-            defaultValue: '5E:8F:16:06:2E:A3:CD:2C:4A:0D:54:78:76:BA:A6:F3:8C:AB:F6:25',
         }, //token thiết bị
     },
     {

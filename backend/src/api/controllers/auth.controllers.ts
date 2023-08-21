@@ -19,12 +19,9 @@ export const signup = async (req: Request, res: Response) => {
             });
         }
 
-        // const upImg = await cloudinary.uploader.upload(req.file.path);
-
         const user = await User.create({
             ...payload,
             password: bcrypt.hashSync(payload.password, 8),
-            // avatar: upImg.url,
         });
 
         if (!user) res.status(500).send({ error: 'Sign up account failed' });
@@ -43,25 +40,23 @@ export const signup = async (req: Request, res: Response) => {
     }
 };
 
-// export const checkDuplicateEmail = (req: Request, res: Response) => {
-//     try {
-//         User.findOne({
-//             where: {
-//                 email: req.body.email,
-//             },
-//         }).then((user) => {
-//             if (user) {
-//                 res.status(422).send({
-//                     error: { email: 'Failed! Email is already in use!' },
-//                 });
-//                 return;
-//             }
-//             res.status(200).send({});
-//         });
-//     } catch (err) {
-//         res.status(500).send({ error: err.message });
-//     }
-// };
+export const checkDuplicateEmail = async (req, res) => {
+    try {
+        const user = await User.findOne({
+            where: {
+                email: req.body.email,
+            },
+        });
+        if (user) {
+            return res.status(422).send({
+                error: { email: 'Failed! Email is already in use!' },
+            });
+        }
+        return res.status(200).send({});
+    } catch (err) {
+        res.status(500).send({ error: err.message });
+    }
+};
 
 export const signin = async (req: Request, res: Response) => {
     try {
@@ -83,6 +78,7 @@ export const signin = async (req: Request, res: Response) => {
 
         const userInfo = {
             ...user.dataValues,
+            device: req.body.device,
             password: undefined,
             secretAsk: undefined,
             secretAns: undefined,
@@ -102,7 +98,11 @@ export const signin = async (req: Request, res: Response) => {
             expiresIn: config.refreshTokenLife, // 5 mins
         });
 
-        refreshTokens[refreshToken] = userInfo;
+        //refreshTokens[refreshToken] = userInfo;
+
+        user.update({
+            device: req.body.device,
+        });
 
         return res.status(200).send({
             accessToken: token,
@@ -114,29 +114,56 @@ export const signin = async (req: Request, res: Response) => {
     }
 };
 
+export const logout = async (req, res) => {
+    try {
+        const user = await User.findOne({ where: { id: res.locals.id } });
+        if (!user) {
+            return res.status(404).send({ error: 'User Not found.' });
+        }
+        user.update({ device: '' });
+        return res.status(200).send({});
+    } catch (err) {
+        res.status(500).send({ error: err.message });
+    }
+};
+
 export const refreshToken = async (req: Request, res: Response) => {
     try {
         const refreshToken: string = req.body.refreshToken;
-        if (refreshToken in refreshTokens) {
-            const token = await jwt.sign({ id: res.locals.id }, config.secret, {
-                algorithm: 'HS256',
-                allowInsecureKeySizes: true,
-                expiresIn: config.tokenLife, // 5 mins
-            });
-            if (!token) {
-                return res.status(403).json({
-                    error: 'Invalid Refresh Token',
-                });
-            }
-            return res.status(200).send({
-                accessToken: token,
-                refreshToken: refreshToken,
-            });
-        } else {
-            return res.status(400).json({
-                error: 'Invalid Request',
+        // if (refreshToken in refreshTokens) {
+        //     const token = await jwt.sign({ id: res.locals.id }, config.secret, {
+        //         algorithm: 'HS256',
+        //         allowInsecureKeySizes: true,
+        //         expiresIn: config.tokenLife, // 5 mins
+        //     });
+        //     if (!token) {
+        //         return res.status(403).json({
+        //             error: 'Invalid Refresh Token',
+        //         });
+        //     }
+        //     return res.status(200).send({
+        //         accessToken: token,
+        //         refreshToken: refreshToken,
+        //     });
+        // } else {
+        //     return res.status(400).json({
+        //         error: 'Invalid Request',
+        //     });
+        // }
+        const token = await jwt.sign({ id: res.locals.id }, config.secret, {
+            algorithm: 'HS256',
+            allowInsecureKeySizes: true,
+            expiresIn: config.tokenLife, // 5 mins
+        });
+        if (!token) {
+            return res.status(403).json({
+                error: 'Invalid Refresh Token',
             });
         }
+        return res.status(200).send({
+            accessToken: token,
+            refreshToken: refreshToken,
+        });
     } catch (err) {
         return res.status(500).send({ error: err.message });
     }

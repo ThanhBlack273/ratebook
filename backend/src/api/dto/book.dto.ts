@@ -15,7 +15,7 @@ export type CreateBookDTO = {
     small: Text;
     medium: Text;
     large: Text;
-    star: Text;
+    star: string;
     countRate: number;
 };
 

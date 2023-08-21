@@ -1,4 +1,4 @@
-import { User, Book, Review } from '../../models';
+import { User, Book, Review, LikeBook, HideReview, LikeReview } from '../../models';
 import { Op } from 'sequelize';
 import { Request, Response } from 'express';
 import { CreateBookDTO } from '../dto/book.dto';
@@ -8,6 +8,7 @@ export const subBook = async (req: Request, res: Response) => {
         const payload: CreateBookDTO = req.body;
         const book = await Book.create({
             ...payload,
+            userId: res.locals.id,
         });
         if (!book) return res.status(400).send({ error: 'Adding book failed' });
         return res.status(201).send({
@@ -121,6 +122,17 @@ export const getBookById = async (req: Request, res: Response) => {
                     as: 'subByUser',
                     attributes: ['id', 'userName', 'avatar'],
                 },
+                {
+                    model: LikeBook,
+                    as: 'likedListUser',
+                    attributes: ['id', 'bookId', 'userId'],
+                    where: {
+                        '$likedListUser.userId$': res.locals.id,
+                        //'$likedReviewListUser.reviewId$': 4,
+                    },
+                    required: false,
+                    duplicating: false,
+                },
             ],
         });
         if (!book) {
@@ -138,17 +150,50 @@ export const getReviewList = async (req: Request, res: Response) => {
         const limit = 10;
         const page = req.query.page ? Number(req.query.page) - 1 : 0;
         const offset = page * limit;
+
+        const listHide: any = await User.findOne({
+            where: {
+                id: res.locals.id,
+            },
+            attributes: [],
+            include: [
+                {
+                    model: HideReview,
+                    as: 'hidedReviewListReview',
+                    attributes: ['reviewId'],
+                    required: false,
+                    duplicating: false,
+                },
+            ],
+        });
+        const arrayReviewHide = await listHide.hidedReviewListReview.map((object) => object.reviewId);
+
         const review = await Review.findAndCountAll({
             where: {
+                id: {
+                    [Op.notIn]: arrayReviewHide,
+                },
                 bookId: Number(req.query.id),
+                deleted: false,
             },
             attributes: ['id', 'rate', 'content', 'photoReview', 'countLike', 'userId', 'bookId', 'updatedAt'],
-            include: {
-                model: User,
-                as: 'user',
-                attributes: ['id', 'userName', 'avatar'],
-                //required: false,
-            },
+            include: [
+                {
+                    model: User,
+                    as: 'User',
+                    attributes: ['id', 'email', 'userName', 'avatar', 'device'],
+                },
+                {
+                    model: LikeReview,
+                    as: 'likedReviewListUser',
+                    attributes: ['id', 'userId', 'reviewId'],
+                    where: {
+                        '$likedReviewListUser.userId$': res.locals.id,
+                    },
+                    required: false,
+                    duplicating: false,
+                },
+            ],
             order: [['updatedAt', 'DESC']],
             limit,
             offset,

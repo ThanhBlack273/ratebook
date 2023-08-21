@@ -12,6 +12,14 @@ export type CreateReviewDTO = {
     countLike?: number;
 };
 
+export type UpdateReviewDTO = {
+    rate: number;
+    content: string;
+    photoReview?: string[];
+    deleted?: boolean;
+    countLike?: number;
+};
+
 export type QueryBookDTO = {
     id: number;
     ISBN_10: string;

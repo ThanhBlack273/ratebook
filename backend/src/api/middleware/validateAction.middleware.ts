@@ -4,13 +4,12 @@ import { Review, LikeBook, HideReview, LikeReview } from '../../models';
 
 import { NextFunction, Request, Response } from 'express';
 
-const checkAddReview = (req: Request, res: Response, next: NextFunction) => {
+const checkValidReview = (req, res, next) => {
     try {
         const rules = {
             rate: 'required|integer|min:1|max:5',
             content: 'required|string',
-            // photoReview: 'array',
-            userId: 'required|integer',
+            photoReview: 'array',
             bookId: 'required|integer',
         };
 
@@ -31,11 +30,83 @@ const checkAddReview = (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
+const checkUpdateReview = (req, res, next) => {
+    try {
+        const rules = {
+            rate: 'required|integer|min:1|max:5',
+            content: 'required|string',
+            photoReview: 'array',
+        };
+
+        const validation = new Validator(req.body, rules, {});
+        validation.passes(() => next());
+        validation.fails(async () => {
+            const error = {};
+            const errors = validation.errors.all();
+            for (const err in errors) {
+                error[err] = Array.prototype.join.call(errors[err], '. ');
+            }
+            return res.status(422).send({
+                error: error,
+            });
+        });
+    } catch (err) {
+        res.status(500).send({ error: err.message });
+    }
+};
+
+const checkOwnerReview = async (req, res, next) => {
+    try {
+        const review = await Review.findOne({
+            where: {
+                userId: res.locals.id,
+                id: req.params.reviewId,
+            },
+        });
+        if (!review) {
+            return res.status(400).send({
+                error: 'Your review is not existed',
+            });
+        }
+        res.locals.review = review; //format code
+        next();
+    } catch (err) {
+        res.status(500).send({ error: err.message });
+    }
+};
+
+// const checkAddReview = (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         const rules = {
+//             rate: 'required|integer|min:1|max:5',
+//             content: 'required|string',
+//             // photoReview: 'array',
+//             userId: 'required|integer',
+//             bookId: 'required|integer',
+//         };
+
+//         const validation = new Validator(req.body, rules, {});
+//         validation.passes(() => next());
+//         validation.fails(async () => {
+//             const error = {};
+//             const errors = validation.errors.all();
+//             for (const err in errors) {
+//                 error[err] = Array.prototype.join.call(errors[err], '. ');
+//             }
+//             return res.status(422).send({
+//                 error: error,
+//             });
+//         });
+//     } catch (err) {
+//         res.status(500).send({ error: err.message });
+//     }
+// };
+
 const checkExistReview = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const review = await Review.findOne({
             where: {
-                userId: req.body.userId,
+                userId: res.locals.id,
                 bookId: req.body.bookId,
             },
         });
@@ -54,8 +125,8 @@ export const likeBookExist = async (req: Request, res: Response, next: NextFunct
     try {
         const liked = await LikeBook.findOne({
             where: {
-                bookId: req.body.bookId,
-                userId: req.body.userId,
+                bookId: req.params.bookId,
+                userId: res.locals.id,
             },
         });
         if (liked) {
@@ -71,8 +142,8 @@ export const likeReviewExist = async (req: Request, res: Response, next: NextFun
     try {
         const liked = await LikeReview.findOne({
             where: {
-                reviewId: req.body.reviewId,
-                userId: req.body.userId,
+                reviewId: req.params.reviewId,
+                userId: res.locals.id,
             },
         });
         if (liked) {
@@ -88,8 +159,8 @@ export const hideReviewExist = async (req: Request, res: Response, next: NextFun
     try {
         const hided = await HideReview.findOne({
             where: {
-                reviewId: req.body.reviewId,
-                userId: req.body.userId,
+                reviewId: req.params.reviewId,
+                userId: res.locals.id,
             },
         });
         if (hided) {
@@ -101,34 +172,33 @@ export const hideReviewExist = async (req: Request, res: Response, next: NextFun
         res.status(500).send({ error: err.message });
     }
 };
-// export const checkDeleteReviewExist = (req: Request, res: Response, next: NextFunction) => {
-//     try {
-//         LikeReview.findOne({
-//             where: {
-//                 reviewId: req.body.reviewId,
-//                 userId: req.body.userId,
-//             },
-//         })
-//             .then((liked) => {
-//                 if (liked) {
-//                     liked.destroy({ force: true });
-//                     return res.status(201).send({ liked: false });
-//                 }
-//                 next();
-//             })
-//             .catch((err) => {
-//                 return res.status(500).send({ error: err.message });
-//             });
-//     } catch (err) {
-//         res.status(500).send({ error: err.message });
-//     }
-// };
+export const checkDeleteOwnerReview = async (req, res, next) => {
+    try {
+        const review = await Review.findOne({
+            where: {
+                id: req.params.reviewId,
+                userId: res.locals.id,
+            },
+        });
+        if (!review) {
+            return res.status(404).send({ error: 'It is not your review' });
+        }
+        res.locals.review = review; //fomart code
+        next();
+    } catch (err) {
+        res.status(500).send({ error: err.message });
+    }
+};
 const validate = {
-    checkAddReview: checkAddReview,
+    checkValidReview: checkValidReview,
+    checkUpdateReview: checkUpdateReview,
+    checkOwnerReview: checkOwnerReview,
+    // checkAddReview: checkAddReview,
     checkExistReview: checkExistReview,
     checkLikeBookExist: likeBookExist,
     checkLikeReviewExist: likeReviewExist,
     checkHideReviewExist: hideReviewExist,
+    checkDeleteOwnerReview: checkDeleteOwnerReview,
     // checkDeleteReviewExist: checkDeleteReviewExist,
 };
 export default validate;

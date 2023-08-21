@@ -4,23 +4,14 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 
 import dbInit from './init';
-// import db from './models';
 dotenv.config();
 
 // routes
 import authRoute from './api/routes/auth.routes';
-// import userRoute from './api/routes/user.routes';
-// import bookRoute from './api/routes/book.routes';
-// import actionRoute from './api/routes/action.routes';
-// import imageRoute from './api/routes/image.routes';
-
-// //reset database
-// db.sequelize.sync({ force: true }).then(() => {
-//     console.log('Drop and Resync Database with { force: true }');
-// });
-
-//nonreset database
-// db.sequelize.sync();
+import userRoute from './api/routes/user.routes';
+import bookRoute from './api/routes/book.routes';
+import actionRoute from './api/routes/action.routes';
+import imageRoute from './api/routes/image.routes';
 
 dbInit();
 
@@ -55,12 +46,11 @@ export const get = () => {
     });
 
     app.use('/api/auth/', authRoute);
-    // app.use('/api/user/', userRoute);
-    // app.use('/api/book/', bookRoute);
-    // app.use('/api/action/', actionRoute);
-    // app.use('/api/image/', imageRoute);
+    app.use('/api/user/', userRoute);
+    app.use('/api/book/', bookRoute);
+    app.use('/api/action/', actionRoute);
+    app.use('/api/image/', imageRoute);
 
-    // app.use('/api/v1', routes);
     return app;
 };
 
@@ -76,35 +66,3 @@ export const start = () => {
 };
 
 start();
-
-// app.use(cors(corsOptions));
-
-// // parse requests of content-type - application/json
-// app.use(express.json());
-
-// // parse requests of content-type - application/x-www-form-urlencoded
-// app.use(express.urlencoded({ extended: true }));
-
-// app.use(
-//     bodyParser.urlencoded({
-//         extended: false,
-//     }),
-// );
-
-// app.use(bodyParser.json());
-
-// simple route
-// app.get('/', (req: Request, res: Response) => {
-//     res.json({ message: 'Hello World' });
-// });
-// app.use('/api/auth/', authRoute);
-// app.use('/api/user/', userRoute);
-// app.use('/api/book/', bookRoute);
-// app.use('/api/action/', actionRoute);
-// app.use('/api/image/', imageRoute);
-
-// set port, listen for requests
-// const PORT = process.env.PORT || 3000;
-// app.listen(PORT, () => {
-//     console.log(`Server is running on http://localhost:${PORT}.`);
-// });
