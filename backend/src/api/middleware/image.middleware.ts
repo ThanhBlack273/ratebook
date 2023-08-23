@@ -1,5 +1,4 @@
 // import Validator from '../helpers/validate';
-// import { Op } from 'sequelize';
 import { NextFunction, Request, Response } from 'express';
 
 const isValidUrl = (urlString) => {

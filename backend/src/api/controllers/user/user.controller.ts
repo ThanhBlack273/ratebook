@@ -1,13 +1,8 @@
-import { User, Book, Review, HideReview, LikeReview, LikeBook } from '../../models';
-import express, { Express, NextFunction, Request, Response } from 'express';
+import { User, Book, Review, HideReview, LikeReview, LikeBook } from '../../../models';
+import { Request, Response } from 'express';
 import { Op } from 'sequelize';
-
-const getPagingData = (data, page, limit) => {
-    const { count: totalDatas, rows: datas } = data;
-    const currentPage = page ? +page : 0;
-    const totalPages = Math.ceil(totalDatas / limit);
-    return { totalDatas, datas, totalPages, currentPage };
-};
+import { getPagingData } from '../../../helpers/paging';
+import * as mapper from './mapper';
 
 export const getUserById = async (req: Request, res: Response) => {
     try {
@@ -84,7 +79,7 @@ export const getReviewList = async (req: Request, res: Response) => {
             totalBooks: response.totalDatas,
             totalPages: response.totalPages,
             currentPage: response.currentPage,
-            reviews: response.datas,
+            reviews: response.datas.map(mapper.toGetReviewList),
         });
     } catch (err) {
         res.status(500).send({ error: err.message });
@@ -165,7 +160,7 @@ export const getLikedList = async (req, res) => {
             totalBooks: response.totalDatas,
             totalPages: response.totalPages,
             currentPage: response.currentPage,
-            books: response.datas,
+            books: response.datas.map(mapper.toGetLikedList),
         });
     } catch (err) {
         return res.status(500).send({ error: err.message });

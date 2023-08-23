@@ -1,5 +1,5 @@
-import authJwt from '../middleware/auth.middleware';
-import * as userController from '../controllers/user.controller';
+// import authJwt from '../middleware/auth.middleware';
+import * as userController from '../controllers/user/user.controller';
 import Router from 'express';
 
 const router = Router();

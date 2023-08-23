@@ -1,5 +1,3 @@
-import { Optional } from 'sequelize/types';
-
 export type CreateReviewDTO = {
     id: number;
     userId: number;

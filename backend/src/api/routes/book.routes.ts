@@ -1,5 +1,5 @@
 import validateBook from '../middleware/validateBook.middleware';
-import * as bookController from '../controllers/book.controller';
+import * as bookController from '../controllers/book/book.controller';
 
 import Router from 'express';
 import authJwt from '../middleware/auth.middleware';

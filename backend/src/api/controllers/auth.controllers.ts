@@ -1,14 +1,14 @@
-import jwt from 'jsonwebtoken';
+import { createToken, createRefreshToken } from '../../helpers/jwt';
 import bcrypt from 'bcryptjs';
-import config from '../../config/auth.config';
 import cloudinary from '../../config/cloudinary.config';
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response } from 'express';
 import { User } from '../../models';
-import { UserInput, UserOutput } from '../../models/user.model';
 import { CreateUserDTO, SignInUserDTO, UpdateUserDTO } from '../dto/user.dto';
-// import {} from 'multer';
 
-const refreshTokens = {};
+// import {} from 'multer';
+// import config from '../../config/auth.config';
+// import { UserInput, UserOutput } from '../../models/user.model';
+// const refreshTokens = {};
 
 export const signup = async (req: Request, res: Response) => {
     try {
@@ -86,17 +86,9 @@ export const signin = async (req: Request, res: Response) => {
             updatedAt: undefined,
             // deletedAt: undefined,
         };
-        const token = await jwt.sign({ id: userInfo.id, email: userInfo.email }, config.secret, {
-            algorithm: 'HS256',
-            allowInsecureKeySizes: true,
-            expiresIn: config.tokenLife, // 5 mins
-        });
 
-        const refreshToken = await jwt.sign({ id: userInfo.id, email: userInfo.email }, config.refreshTokenSecret, {
-            algorithm: 'HS256',
-            allowInsecureKeySizes: true,
-            expiresIn: config.refreshTokenLife, // 5 mins
-        });
+        const token = await createToken(userInfo.id);
+        const refreshToken = await createRefreshToken(userInfo.id);
 
         //refreshTokens[refreshToken] = userInfo;
 
@@ -150,11 +142,9 @@ export const refreshToken = async (req: Request, res: Response) => {
         //         error: 'Invalid Request',
         //     });
         // }
-        const token = await jwt.sign({ id: res.locals.id }, config.secret, {
-            algorithm: 'HS256',
-            allowInsecureKeySizes: true,
-            expiresIn: config.tokenLife, // 5 mins
-        });
+
+        const token = await createToken(res.locals.id);
+
         if (!token) {
             return res.status(403).json({
                 error: 'Invalid Refresh Token',
@@ -196,11 +186,8 @@ export const changePassword = async (req: Request, res: Response) => {
         const updatedUser = await user.update({
             password: bcrypt.hashSync(payload.newPassword, 8),
         });
-        const token = jwt.sign({ id: updatedUser.id }, config.secret, {
-            algorithm: 'HS256',
-            allowInsecureKeySizes: true,
-            expiresIn: config.tokenLife, // 5 mins
-        });
+
+        const token = await createToken(updatedUser.id);
 
         return res.status(200).send({
             accessToken: token,
@@ -240,11 +227,8 @@ export const changeInfoUser = async (req: Request, res: Response) => {
                 avatar: payload.avatar,
             });
             cloudinary.uploader.destroy(lastAvatar?.split('/').pop().split('.').shift());
-            const token = jwt.sign({ id: newUser.id }, config.secret, {
-                algorithm: 'HS256',
-                allowInsecureKeySizes: true,
-                expiresIn: config.tokenLife, // 5 mins
-            });
+
+            const token = await createToken(newUser.id);
 
             return res.status(200).send({
                 accessToken: token,
@@ -266,11 +250,8 @@ export const changeInfoUser = async (req: Request, res: Response) => {
                 phoneNumber: payload.phoneNumber,
                 avatar: avatar,
             });
-            const token = jwt.sign({ id: newUser.id }, config.secret, {
-                algorithm: 'HS256',
-                allowInsecureKeySizes: true,
-                expiresIn: config.tokenLife, // 5 mins
-            });
+
+            const token = await createToken(newUser.id);
 
             return res.status(200).send({
                 accessToken: token,
@@ -309,11 +290,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
             });
         }
 
-        const token = jwt.sign({ id: user.id, email: user.email }, config.secret, {
-            algorithm: 'HS256',
-            allowInsecureKeySizes: true,
-            expiresIn: config.tokenLife, // 5 mins
-        });
+        const token = await createToken(user.id);
 
         return res.status(200).send({ token: token });
     } catch (err) {

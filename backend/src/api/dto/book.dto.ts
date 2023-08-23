@@ -1,5 +1,3 @@
-import { Optional } from 'sequelize/types';
-
 export type CreateBookDTO = {
     userId: number;
     ISBN_10: string;

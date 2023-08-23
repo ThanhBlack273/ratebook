@@ -1,5 +1,4 @@
 import authJwt from '../middleware/auth.middleware';
-import upload from '../../helpers/multer';
 import validateUser from '../middleware/validateUser.middleware';
 
 import * as authController from '../controllers/auth.controllers';

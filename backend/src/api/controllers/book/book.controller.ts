@@ -1,7 +1,9 @@
-import { User, Book, Review, LikeBook, HideReview, LikeReview } from '../../models';
+import { User, Book, Review, LikeBook, HideReview, LikeReview } from '../../../models';
 import { Op } from 'sequelize';
 import { Request, Response } from 'express';
-import { CreateBookDTO } from '../dto/book.dto';
+import { CreateBookDTO } from '../../dto/book.dto';
+import { getPagingData } from '../../../helpers/paging';
+import * as mapper from './mapper';
 
 export const subBook = async (req: Request, res: Response) => {
     try {
@@ -20,13 +22,6 @@ export const subBook = async (req: Request, res: Response) => {
     } catch (err) {
         return res.status(500).send({ error: err.message });
     }
-};
-
-const getPagingData = (data, page, limit) => {
-    const { count: totalDatas, rows: datas } = data;
-    const currentPage = page ? +page : 0;
-    const totalPages = Math.ceil(totalDatas / limit);
-    return { totalDatas, datas, totalPages, currentPage };
 };
 
 export const getAllBook = async (req: Request, res: Response) => {
@@ -139,7 +134,7 @@ export const getBookById = async (req: Request, res: Response) => {
             return res.status(404).send({ error: 'Can Not Find Your Book' });
         }
 
-        return res.status(200).send(book);
+        return res.status(200).send(mapper.toGetBookById(book));
     } catch (err) {
         return res.status(500).send({ error: err.message });
     }
@@ -200,11 +195,12 @@ export const getReviewList = async (req: Request, res: Response) => {
         if (!review) return res.status(404).send({ error: 'No books have been reviewed yet.' });
 
         const response = await getPagingData(review, page + 1, limit);
+
         res.status(201).send({
             totalBooks: response.totalDatas,
             totalPages: response.totalPages,
             currentPage: response.currentPage,
-            reviews: response.datas,
+            reviews: response.datas.map(mapper.toGetReviewList),
         });
     } catch (err) {
         res.status(500).send({ error: err.message });

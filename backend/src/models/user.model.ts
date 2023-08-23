@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { DataTypes, Model, ModelStatic, Optional } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
-import Book from './book.model';
-import Review from './review.model';
 
 interface UserAttributes {
     id: number;

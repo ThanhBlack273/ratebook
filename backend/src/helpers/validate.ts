@@ -1,6 +1,5 @@
 import Validator from 'validatorjs';
 import * as db from '../models';
-import { Table } from 'sequelize-typescript';
 
 Validator.registerAsync(
     'existUsers',

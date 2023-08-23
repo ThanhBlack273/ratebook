@@ -1,51 +1,19 @@
-//cloud railway
-
-// export default {
-//     HOST: 'containers-us-west-70.railway.app',
-//     USER: 'postgres',
-//     PASSWORD: 'vx3HtNyYKaxngPU6R2T3',
-//     DB: 'railway',
-//     dialect: 'postgres',
-//     port: 6164,
-//     pool: {
-//         max: 5,
-//         min: 0,
-//         acquire: 30000,
-//         idle: 10000,
-//     },
-// };
-
-// export default {
-//     HOST: 'localhost',
-//     USER: 'postgres',
-//     PASSWORD: 'Thanh!@2703201',
-//     DB: 'ratebooks',
-//     dialect: 'postgres',
-//     port: 5432,
-//     pool: {
-//         max: 5,
-//         min: 0,
-//         acquire: 30000,
-//         idle: 10000,
-//     },
-// };
-
 // require('dotenv').config();
 import { Sequelize } from 'sequelize';
 
-const dbName = 'railway'; //process.env.DB_NAME;
-const dbUser = 'postgres'; //process.env.DB_USER;
-const dbHost = 'containers-us-west-192.railway.app'; //process.env.DB_HOST;
-const dbDriver = 'postgres'; //process.env.DB_DRIVER;
-const dbPassword = '5wzAKl4vI1WSE6DYl3BF'; //process.env.DB_PASSWORD;
-const dbPort = 5918;
-
-// const dbName = 'formatcode'; //process.env.DB_NAME;
+// const dbName = 'railway'; //process.env.DB_NAME;
 // const dbUser = 'postgres'; //process.env.DB_USER;
-// const dbHost = 'localhost'; //process.env.DB_HOST;
+// const dbHost = 'containers-us-west-192.railway.app'; //process.env.DB_HOST;
 // const dbDriver = 'postgres'; //process.env.DB_DRIVER;
-// const dbPassword = 'Thanh!@2703201'; //process.env.DB_PASSWORD;
-// const dbPort = 5432;
+// const dbPassword = '5wzAKl4vI1WSE6DYl3BF'; //process.env.DB_PASSWORD;
+// const dbPort = 5918;
+
+const dbName = 'formatcode'; //process.env.DB_NAME;
+const dbUser = 'postgres'; //process.env.DB_USER;
+const dbHost = 'localhost'; //process.env.DB_HOST;
+const dbDriver = 'postgres'; //process.env.DB_DRIVER;
+const dbPassword = 'abc123'; //process.env.DB_PASSWORD;
+const dbPort = 5432;
 
 const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
     host: dbHost,

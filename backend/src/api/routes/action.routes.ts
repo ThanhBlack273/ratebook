@@ -1,6 +1,6 @@
 import validateReview from '../middleware/validateAction.middleware';
 import authJwt from '../middleware/auth.middleware';
-import * as actionController from '../controllers/action.controllers';
+import * as actionController from '../controllers/action/action.controllers';
 
 import Router from 'express';
 const router = Router();

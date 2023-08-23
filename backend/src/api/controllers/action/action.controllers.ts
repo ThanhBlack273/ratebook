@@ -1,17 +1,13 @@
-import { NextFunction, Request, Response } from 'express';
-import { User, Book, Review, LikeBook, LikeReview, HideReview, Notification } from '../../models';
-import { CreateReviewDTO, UpdateReviewDTO } from '../dto/review.dto';
+import { Request, Response } from 'express';
+import { User, Book, Review, LikeBook, LikeReview, HideReview, Notification } from '../../../models';
+import { CreateReviewDTO, UpdateReviewDTO } from '../../dto/review.dto';
 import { Op } from 'sequelize';
-import { CreateNotificationDTO } from '../dto/notification.dto';
+import { CreateNotificationDTO } from '../../dto/notification.dto';
+import { getPagingData } from '../../../helpers/paging';
+import * as mapper from './mapper';
 
 //import { Op } from 'sequelize';
 
-const getPagingData = (data, page, limit) => {
-    const { count: totalDatas, rows: datas } = data;
-    const currentPage = page ? +page : 0;
-    const totalPages = Math.ceil(totalDatas / limit);
-    return { totalDatas, datas, totalPages, currentPage };
-};
 export const addReview = async (req: Request, res: Response) => {
     try {
         const payload: CreateReviewDTO = req.body;
@@ -104,11 +100,12 @@ export const getAllReview = async (req: Request, res: Response) => {
         });
         if (!review) return res.status(404).send({ error: 'Do not have any review' });
         const response = await getPagingData(review, page + 1, limit);
+        // const newData = await response.datas.map(mapper.toGetAllReview);
         return res.status(200).send({
             totalBooks: response.totalDatas,
             totalPages: response.totalPages,
             currentPage: response.currentPage,
-            reviews: response.datas,
+            reviews: response.datas.map(mapper.toGetAllReview),
         });
     } catch (err) {
         res.status(500).send({ error: err.message });
@@ -238,7 +235,7 @@ export const noti = async (req, res) => {
         const offset = page * limit;
         const noti = await Notification.findAndCountAll({
             where: { toUserId: res.locals.id },
-            attributes: ['id', 'isSeen', 'type', 'toUserId', 'fromUserId', 'reviewId', 'bookId'],
+            attributes: ['id', 'isSeen', 'type', 'toUserId', 'fromUserId', 'reviewId', 'bookId', 'createdAt'],
             include: [
                 {
                     model: User,
@@ -276,7 +273,7 @@ export const noti = async (req, res) => {
             totalNotis: response.totalDatas,
             totalPages: response.totalPages,
             currentPage: response.currentPage,
-            notis: response.datas,
+            notis: response.datas.map(mapper.toNoti),
         });
     } catch (err) {
         res.status(500).send({ error: err.message });

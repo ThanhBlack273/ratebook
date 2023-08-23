@@ -1,20 +1,10 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { DataTypes, Model, Optional, Sequelize, ForeignKey } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
-import User from './user.model';
-import Review from './review.model';
 
 interface BookAttributes {
     id: number;
     userId: ForeignKey<number>;
-
-    // userId: {
-    //     type: number;
-    //     references: {
-    //         model: User;
-    //         key: 'id';
-    //     };
-    // };
     ISBN_10: string;
     ISBN_13: string;
     title: string;
@@ -41,13 +31,6 @@ export interface BookOutput extends Required<BookAttributes> {}
 class Book extends Model<BookAttributes, BookrInput> implements BookAttributes {
     public id!: number;
     public userId!: ForeignKey<number>;
-    // public userId!: {
-    //     type: number;
-    //     references: {
-    //         model: User;
-    //         key: 'id';
-    //     };
-    // };
     public ISBN_10: string;
     public ISBN_13: string;
     public title: string;
@@ -70,13 +53,6 @@ class Book extends Model<BookAttributes, BookrInput> implements BookAttributes {
 
 Book.init(
     {
-        // userId: {
-        //     type: DataTypes.INTEGER,
-        //     references: {
-        //         model: User,
-        //         key: 'id',
-        //     },
-        // },
         id: {
             type: DataTypes.INTEGER,
             autoIncrement: true,
@@ -126,6 +102,5 @@ Book.init(
         tableName: 'books',
     },
 );
-//book liên quan review
 
 export default Book;
