@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import cloudinary from '../../config/cloudinary.config';
 import { Request, Response } from 'express';
 import { User } from '../../models';
-import { CreateUserDTO, SignInUserDTO, UpdateUserDTO } from '../dto/user.dto';
+import { CreateUserDTO, SignInUserDTO, UpdateUserDTO } from '../interfaces/user.dto';
 
 // import {} from 'multer';
 // import config from '../../config/auth.config';

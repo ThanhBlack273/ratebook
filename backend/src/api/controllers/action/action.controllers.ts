@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import { User, Book, Review, LikeBook, LikeReview, HideReview, Notification } from '../../../models';
-import { CreateReviewDTO, UpdateReviewDTO } from '../../dto/review.dto';
+import { CreateReviewDTO, UpdateReviewDTO } from '../../interfaces/review.dto';
 import { Op } from 'sequelize';
-import { CreateNotificationDTO } from '../../dto/notification.dto';
+import { CreateNotificationDTO } from '../../interfaces/notification.dto';
 import { getPagingData } from '../../../helpers/paging';
 import * as mapper from './mapper';
 

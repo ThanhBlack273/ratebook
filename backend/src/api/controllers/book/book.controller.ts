@@ -1,9 +1,10 @@
 import { User, Book, Review, LikeBook, HideReview, LikeReview } from '../../../models';
 import { Op } from 'sequelize';
 import { Request, Response } from 'express';
-import { CreateBookDTO } from '../../dto/book.dto';
+import { CreateBookDTO } from '../../interfaces/book.dto';
 import { getPagingData } from '../../../helpers/paging';
 import * as mapper from './mapper';
+import sequelize from 'sequelize';
 
 export const subBook = async (req: Request, res: Response) => {
     try {
@@ -29,8 +30,15 @@ export const getAllBook = async (req: Request, res: Response) => {
         const limit = 10;
         const page = req.query.page ? Number(req.query.page) - 1 : 0;
         const offset = page * limit;
+        const order = [
+            ['title', 'DESC'],
+            ['updatedAt', 'DESC'],
+        ];
         const book = await Book.findAndCountAll({
-            order: [['updatedAt', 'DESC']],
+            order: [
+                ['title', 'DESC'],
+                ['updatedAt', 'DESC'],
+            ],
             limit,
             offset,
         });
