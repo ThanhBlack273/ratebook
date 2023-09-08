@@ -1,5 +1,7 @@
+import { Op } from 'sequelize';
 import Validator from '../../helpers/validate';
 import { NextFunction, Request, Response } from 'express';
+import { Book } from '../../models';
 
 const checkSubBook = (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -36,27 +38,47 @@ const checkSubBook = (req: Request, res: Response, next: NextFunction) => {
     }
 };
 
-const checkExistBook = (req: Request, res: Response) => {
+const checkExistBook = async (req: Request, res: Response) => {
     try {
-        const rules = {
-            ISBN_10: 'required|string|existBooks:Book',
-            ISBN_13: 'required|string|existBooks:Book',
-        };
+        // const rules = {
+        //     ISBN_10: 'required|string|existBooks:Book',
+        //     ISBN_13: 'required|string|existBooks:Book',
+        // };
 
-        const validation = new Validator(req.query, rules, {});
-        validation.passes(() => {
-            res.status(404).send({ error: 'You can subcribe your book' });
+        // const validation = new Validator(req.query, rules, {});
+        // validation.passes(() => {
+        //     res.status(404).send({ error: 'You can subcribe your book' });
+        // });
+        // validation.fails(async () => {
+        //     // const error = {};
+        //     // const errors = validation.errors.all();
+        //     // for (const err in errors) {
+        //     //     error[err] = Array.prototype.join.call(errors[err], '. ');
+        //     // }
+        //     res.status(200).send({});
+        // });
+        const book = await Book.findOne({
+            where: {
+                [Op.or]: [
+                    {
+                        ISBN_10: {
+                            [Op.like]: `${req.query.ISBN_10}`,
+                        },
+                    },
+                    {
+                        ISBN_13: {
+                            [Op.like]: `${req.query.ISBN_13}`,
+                        },
+                    },
+                ],
+            },
         });
-        validation.fails(async () => {
-            // const error = {};
-            // const errors = validation.errors.all();
-            // for (const err in errors) {
-            //     error[err] = Array.prototype.join.call(errors[err], '. ');
-            // }
-            res.status(200).send({});
-        });
+        if (!book) {
+            return res.status(404).send({ error: 'You can subcribe your book' });
+        }
+        return res.status(200).send(book);
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        return res.status(500).send({ error: err.message });
     }
 };
 

@@ -1,5 +1,5 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import config from '../../config/auth.config';
+import config from '../../config/auth.config.json';
 import { NextFunction, Request, Response } from 'express';
 
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {

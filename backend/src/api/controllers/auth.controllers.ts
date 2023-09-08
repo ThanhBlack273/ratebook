@@ -4,6 +4,8 @@ import cloudinary from '../../config/cloudinary.config';
 import { Request, Response } from 'express';
 import { User } from '../../models';
 import { CreateUserDTO, SignInUserDTO, UpdateUserDTO } from '../interfaces/user.dto';
+import sequelizeConnection from '../../config/db.config';
+import { Sequelize, Transaction } from 'sequelize';
 
 // import {} from 'multer';
 // import config from '../../config/auth.config';
@@ -11,6 +13,10 @@ import { CreateUserDTO, SignInUserDTO, UpdateUserDTO } from '../interfaces/user.
 // const refreshTokens = {};
 
 export const signup = async (req: Request, res: Response) => {
+    const t = await sequelizeConnection.transaction({
+        // isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+    });
+
     try {
         const payload: CreateUserDTO = req.body;
         if (payload.password !== payload.passwordConfirm) {
@@ -19,14 +25,19 @@ export const signup = async (req: Request, res: Response) => {
             });
         }
 
-        const user = await User.create({
-            ...payload,
-            password: bcrypt.hashSync(payload.password, 8),
-        });
+        const user = await User.create(
+            {
+                ...payload,
+                password: bcrypt.hashSync(payload.password, 8),
+            },
+            { transaction: t },
+        );
+        if (!user) {
+            await t.rollback();
+            return res.status(500).send({ error: 'Sign up account failed' });
+        }
 
-        if (!user) res.status(500).send({ error: 'Sign up account failed' });
-
-        return res.status(201).send({
+        res.status(201).send({
             ...user.dataValues,
             password: undefined,
             secretAsk: undefined,
@@ -35,8 +46,11 @@ export const signup = async (req: Request, res: Response) => {
             updatedAt: undefined,
             // deletedAt: undefined,
         });
+        await t.commit();
+        return;
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 
@@ -60,6 +74,7 @@ export const checkDuplicateEmail = async (req, res) => {
 
 export const signin = async (req: Request, res: Response) => {
     try {
+        console.log('hello');
         const payload: SignInUserDTO = req.body;
 
         const user = await User.findOne({
@@ -71,7 +86,7 @@ export const signin = async (req: Request, res: Response) => {
         if (!user) {
             return res.status(404).send({ error: 'User Not found.' });
         }
-
+        console.log(user);
         if (!bcrypt.compareSync(payload.password, user.password)) {
             return res.status(401).send({ error: 'Invalid Password!' });
         }
@@ -160,6 +175,7 @@ export const refreshToken = async (req: Request, res: Response) => {
 };
 
 export const changePassword = async (req: Request, res: Response) => {
+    const t = await sequelizeConnection.transaction();
     try {
         const payload: UpdateUserDTO = req.body;
         if (payload.newPassword !== payload.confirmNewPassword) {
@@ -183,13 +199,16 @@ export const changePassword = async (req: Request, res: Response) => {
             });
         }
 
-        const updatedUser = await user.update({
-            password: bcrypt.hashSync(payload.newPassword, 8),
-        });
+        const updatedUser = await user.update(
+            {
+                password: bcrypt.hashSync(payload.newPassword, 8),
+            },
+            { transaction: t },
+        );
 
         const token = await createToken(updatedUser.id);
 
-        return res.status(200).send({
+        res.status(200).send({
             accessToken: token,
             user: {
                 id: updatedUser.id,
@@ -200,12 +219,16 @@ export const changePassword = async (req: Request, res: Response) => {
                 avatar: updatedUser.avatar,
             },
         });
+        await t.commit();
+        return;
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 
 export const changeInfoUser = async (req: Request, res: Response) => {
+    const t = await sequelizeConnection.transaction();
     try {
         const payload: UpdateUserDTO = req.body;
         const user = await User.findOne({
@@ -220,17 +243,20 @@ export const changeInfoUser = async (req: Request, res: Response) => {
         if (payload.avatar !== '') {
             const lastAvatar = user.avatar.toString();
 
-            const newUser = await user.update({
-                userName: payload.userName,
-                dateOfBirth: payload.dateOfBirth,
-                phoneNumber: payload.phoneNumber,
-                avatar: payload.avatar,
-            });
+            const newUser = await user.update(
+                {
+                    userName: payload.userName,
+                    dateOfBirth: payload.dateOfBirth,
+                    phoneNumber: payload.phoneNumber,
+                    avatar: payload.avatar,
+                },
+                { transaction: t },
+            );
             cloudinary.uploader.destroy(lastAvatar?.split('/').pop().split('.').shift());
 
             const token = await createToken(newUser.id);
 
-            return res.status(200).send({
+            res.status(200).send({
                 accessToken: token,
                 user: {
                     id: newUser.id,
@@ -242,18 +268,23 @@ export const changeInfoUser = async (req: Request, res: Response) => {
                     device: newUser.device,
                 },
             });
+            await t.commit();
+            return;
         } else {
             const avatar = user.avatar;
-            const newUser = await user.update({
-                userName: payload.userName,
-                dateOfBirth: payload.dateOfBirth,
-                phoneNumber: payload.phoneNumber,
-                avatar: avatar,
-            });
+            const newUser = await user.update(
+                {
+                    userName: payload.userName,
+                    dateOfBirth: payload.dateOfBirth,
+                    phoneNumber: payload.phoneNumber,
+                    avatar: avatar,
+                },
+                { transaction: t },
+            );
 
             const token = await createToken(newUser.id);
 
-            return res.status(200).send({
+            res.status(200).send({
                 accessToken: token,
                 user: {
                     id: newUser.id,
@@ -264,9 +295,12 @@ export const changeInfoUser = async (req: Request, res: Response) => {
                     avatar: newUser.avatar,
                 },
             });
+            await t.commit();
+            return;
         }
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 
@@ -299,6 +333,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 };
 
 export const resetPassword = async (req: Request, res: Response) => {
+    const t = await sequelizeConnection.transaction();
     try {
         const payload: UpdateUserDTO = req.body;
         const user = await User.findOne({
@@ -316,12 +351,18 @@ export const resetPassword = async (req: Request, res: Response) => {
             });
         }
 
-        user.update({
-            password: bcrypt.hashSync(payload.newPassword, 8),
-        }).then(() => {
+        user.update(
+            {
+                password: bcrypt.hashSync(payload.newPassword, 8),
+            },
+            { transaction: t },
+        ).then(async () => {
             res.status(200).send({});
+            await t.commit();
+            return;
         });
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };

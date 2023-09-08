@@ -4,6 +4,7 @@ import {
     StyleProp,
     StyleSheet,
     Text,
+    TextStyle,
     TouchableOpacity,
     View,
     ViewStyle,
@@ -14,7 +15,9 @@ interface LoadingButtonProps {
     onPress?: ((event: GestureResponderEvent) => void) | undefined;
     isLoading?: boolean;
     disabled?: boolean;
+    children?: React.ReactNode;
     style?: StyleProp<ViewStyle>;
+    styleText?: StyleProp<TextStyle>;
 }
 
 const LoadingButton = ({
@@ -22,7 +25,9 @@ const LoadingButton = ({
     isLoading = false,
     onPress = undefined,
     disabled = false,
+    children,
     style = {},
+    styleText = {},
 }: LoadingButtonProps) => {
     return (
         <View style={[styles.container]}>
@@ -38,7 +43,10 @@ const LoadingButton = ({
                     {isLoading ? (
                         <ActivityIndicator size="small" color="yellow" />
                     ) : (
-                        <Text style={styles.buttonText}>{text}</Text>
+                        <View style={styles.buttonContent}>
+                            {children}
+                            <Text style={[styles.buttonText, styleText]}>{text}</Text>
+                        </View>
                     )}
                 </View>
             </TouchableOpacity>
@@ -64,6 +72,10 @@ const styles = StyleSheet.create({
         color: 'black',
         fontWeight: '600',
         fontSize: 14,
+    },
+    buttonContent: {
+        alignItems: 'center',
+        flexDirection: 'row',
     },
 });
 

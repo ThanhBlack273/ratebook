@@ -74,6 +74,8 @@ export const getReviewList = async (req: Request, res: Response) => {
             limit,
             offset,
         });
+        // if (review.rows.length == 0) return res.status(404).send({ error: 'Not have any review' });
+        if (review.rows.length == 0) return res.status(200).send({});
         const response = await getPagingData(review, page + 1, limit);
         res.status(200).send({
             totalBooks: response.totalDatas,
@@ -115,10 +117,10 @@ export const getBookSub = async (req: Request, res: Response) => {
             limit,
             offset,
         });
-        if (!book) {
-            return res.status(404).send({ error: 'Can Not Find Your Data' });
-        }
-
+        // if (book.rows.length == 0) {
+        //     return res.status(404).send({ error: 'Can Not Find Your Data' });
+        // }
+        if (book.rows.length == 0) return res.status(200).send({});
         const response = await getPagingData(book, page + 1, limit);
         res.status(201).send({
             totalBooks: response.totalDatas,
@@ -151,10 +153,10 @@ export const getLikedList = async (req, res) => {
             limit,
             offset,
         });
-        if (!book) {
-            return res.status(404).send({ error: 'Can Not Find Your Data' });
-        }
-
+        // if (book.rows.length == 0) {
+        //     return res.status(404).send({ error: 'Can Not Find Your Data' });
+        // }
+        if (book.rows.length == 0) return res.status(200).send({});
         const response = await getPagingData(book, page + 1, limit);
         return res.status(200).send({
             totalBooks: response.totalDatas,

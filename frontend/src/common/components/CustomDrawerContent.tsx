@@ -1,38 +1,44 @@
-import {
-    DrawerContentComponentProps,
-    DrawerContentScrollView,
-    DrawerItemList,
-} from '@react-navigation/drawer';
+import {DrawerContentComponentProps, DrawerContentScrollView, DrawerItemList} from '@react-navigation/drawer';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Image, StyleSheet, Text, View} from 'react-native';
+import {Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {RootState} from '../../slices/store';
 import LoadingButton from './LoadingButton';
 import images from '../res/images';
 import {userLoggedOut} from '../../slices/auth';
+import {resetActiveNotisCount} from '../../slices/notifications';
 
 const CustomDrawerContent = (props: DrawerContentComponentProps) => {
     const user = useSelector((state: RootState) => state.auth.user);
     const dispatch = useDispatch();
 
-    const handleLogout = () => dispatch(userLoggedOut());
+    const handleLogout = () => {
+        dispatch(resetActiveNotisCount());
+        dispatch(userLoggedOut());
+    };
 
     return (
         <DrawerContentScrollView {...props} style={styles.container}>
             {user ? (
                 <View style={styles.containerUser}>
-                    <View style={styles.containerUserInfo}>
-                        <Image
-                            style={styles.avatarImage}
-                            source={user ? {uri: user.avatar} : images.avatar}
-                        />
+                    <TouchableOpacity
+                        onPress={() =>
+                            props.navigation.navigate('Profile', {
+                                screen: 'ReviewTab',
+                                params: {id: user.id},
+                            })
+                        }
+                        activeOpacity={0.4}>
+                        <View style={styles.containerUserInfo}>
+                            <Image style={styles.avatarImage} source={user ? {uri: user.avatar} : images.avatar} />
 
-                        <View style={styles.contentInfo}>
-                            <Text style={styles.textName}>{user.userName}</Text>
-                            <Text style={styles.textEmail}>{user.email}</Text>
+                            <View style={styles.contentInfo}>
+                                <Text style={styles.textName}>{user.userName}</Text>
+                                <Text style={styles.textEmail}>{user.email}</Text>
+                            </View>
                         </View>
-                    </View>
+                    </TouchableOpacity>
                     <MaterialCommunityIcons
                         name="logout-variant"
                         color="red"
@@ -80,7 +86,7 @@ const styles = StyleSheet.create({
         width: '90%',
         display: 'flex',
         flexDirection: 'row',
-        justifyContent: 'center',
+        justifyContent: 'space-between',
         alignItems: 'center',
         alignSelf: 'center',
         marginTop: 10,

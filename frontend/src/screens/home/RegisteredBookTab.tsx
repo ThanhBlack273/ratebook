@@ -1,4 +1,5 @@
 import {useState} from 'react';
+import {Picker} from '@react-native-picker/picker';
 import {
     ActivityIndicator,
     NativeScrollEvent,
@@ -8,26 +9,59 @@ import {
     View,
 } from 'react-native';
 
-import {ScrollViewStyle, SmallBook} from '../../common/components';
+import {LoadingButton, ScrollViewStyle, SmallBook} from '../../common/components';
 import {IBook, useGetRegisteredBooksQuery} from '../../slices/books';
+import {RegisteredBookTabProps} from '../../navigator';
+import {BOOKS_PER_PAGE, PADDING_OFFSET, SORT_BY} from '../../common/constants';
 
-const RegisterBookTab = () => {
+const RegisterBookTab = ({route, navigation}: RegisteredBookTabProps) => {
     const [page, setPage] = useState(1);
-    const {data, isFetching, error} = useGetRegisteredBooksQuery(page);
+    const {data, isFetching} = useGetRegisteredBooksQuery(page);
+
+    const handlePress = (id: string) => {
+        navigation.navigate('Detail', {id});
+    };
+
     const handleMoveDown = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         if (
-            event.nativeEvent.contentOffset.y + event.nativeEvent.layoutMeasurement.height + 100 >
+            event.nativeEvent.contentOffset.y +
+                event.nativeEvent.layoutMeasurement.height +
+                PADDING_OFFSET >
             event.nativeEvent.contentSize.height
         ) {
-            // do something
+            if (data && data.books.length % BOOKS_PER_PAGE === 0) {
+                setPage(pre => pre + 1);
+            }
         }
     };
+
     return (
         <View style={styles.coverContainer}>
             <ScrollViewStyle
                 contentContainerStyle={styles.container}
                 onScroll={handleMoveDown}
                 scrollEventThrottle={16}>
+                <View style={styles.controlBar}>
+                    <View style={styles.inputContainer}>
+                        <Text style={[styles.text]}>Sort by</Text>
+                        <View style={styles.pickerContainer}>
+                            <Picker style={styles.picker} selectedValue="latest">
+                                {SORT_BY.map(item => (
+                                    <Picker.Item
+                                        key={item.value}
+                                        label={item.label}
+                                        value={item.value}
+                                    />
+                                ))}
+                            </Picker>
+                        </View>
+                    </View>
+                    <LoadingButton
+                        text="Register"
+                        style={styles.button}
+                        onPress={() => navigation.navigate('RegisterBook', {id: ''})}
+                    />
+                </View>
                 <View style={styles.content}>
                     {data &&
                         data.books.map((book: IBook) => (
@@ -39,7 +73,7 @@ const RegisterBookTab = () => {
                                 imgUri={book.thumbnail || ''}
                                 publisher={book.publisher || ''}
                                 style={styles.bookItem}
-                                // handlePress={handlePress}
+                                handlePress={handlePress}
                             />
                         ))}
                 </View>
@@ -66,8 +100,14 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: 'white',
     },
+    controlBar: {
+        marginTop: 5,
+        flexDirection: 'row',
+        width: '92%',
+        justifyContent: 'flex-end',
+        alignContent: 'center',
+    },
     content: {
-        marginTop: 10,
         width: '92%',
         display: 'flex',
         flexDirection: 'row',
@@ -79,6 +119,29 @@ const styles = StyleSheet.create({
     },
     activityIndicator: {
         marginTop: 10,
+    },
+    inputContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        marginRight: 10,
+    },
+    pickerContainer: {
+        width: 120,
+    },
+    picker: {
+        color: 'gray',
+        width: '110%',
+        height: 20,
+    },
+    text: {
+        color: 'gray',
+        fontSize: 16,
+        fontWeight: '600',
+    },
+    button: {
+        width: 60,
+        height: 30,
     },
 });
 

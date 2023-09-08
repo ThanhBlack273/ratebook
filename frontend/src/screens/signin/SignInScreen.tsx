@@ -11,13 +11,11 @@ import {SignInProps} from '../../navigator';
 import {isAllInValidFieldOfObject, isAllValidFieldOfObject} from '../../common/utils/heaper';
 import {ISignInInput} from '../../slices/auth';
 import {useSignInMutation} from '../../slices/auth';
+import {getDevideToken} from '../../common/utils/FCM';
 
 const validationSchema = yup.object({
     email: yup.string().email('Enter a valid email').required('Email is required'),
-    password: yup
-        .string()
-        .min(8, 'Password should be of minimum 8 characters length')
-        .required('Password is required'),
+    password: yup.string().min(8, 'Password should be of minimum 8 characters length').required('Password is required'),
 });
 
 const SignInScreen = ({route, navigation}: SignInProps) => {
@@ -45,8 +43,9 @@ const SignInScreen = ({route, navigation}: SignInProps) => {
         }
     }, [data]);
 
-    const handleSubmit = async (values: ISignInInput) => {
-        await signIn(values).unwrap();
+    const handleSubmit = async (values: Omit<ISignInInput, 'device'>) => {
+        const device = await getDevideToken();
+        await signIn({...values, device}).unwrap();
     };
 
     return (
@@ -78,20 +77,13 @@ const SignInScreen = ({route, navigation}: SignInProps) => {
                     text="Sign In"
                     onPress={() => formik.handleSubmit()}
                     isLoading={isLoading}
-                    disabled={
-                        !(
-                            isAllValidFieldOfObject(formik.values) &&
-                            isAllInValidFieldOfObject(formik.errors)
-                        )
-                    }
+                    disabled={!(isAllValidFieldOfObject(formik.values) && isAllInValidFieldOfObject(formik.errors))}
                 />
                 <View style={styles.navigate}>
                     <Text style={styles.naviagteText} onPress={() => navigation.navigate('SignUp')}>
                         Sign up
                     </Text>
-                    <Text
-                        style={styles.naviagteText}
-                        onPress={() => navigation.navigate('ForgotPassword')}>
+                    <Text style={styles.naviagteText} onPress={() => navigation.navigate('ForgotPassword')}>
                         Forgot Password?
                     </Text>
                 </View>

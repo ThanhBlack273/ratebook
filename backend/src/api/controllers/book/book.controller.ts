@@ -5,22 +5,30 @@ import { CreateBookDTO } from '../../interfaces/book.dto';
 import { getPagingData } from '../../../helpers/paging';
 import * as mapper from './mapper';
 import sequelize from 'sequelize';
+import sequelizeConnection from '../../../config/db.config';
 
 export const subBook = async (req: Request, res: Response) => {
+    const t = await sequelizeConnection.transaction();
     try {
         const payload: CreateBookDTO = req.body;
-        const book = await Book.create({
-            ...payload,
-            userId: res.locals.id,
-        });
+        const book = await Book.create(
+            {
+                ...payload,
+                userId: res.locals.id,
+            },
+            { transaction: t },
+        );
         if (!book) return res.status(400).send({ error: 'Adding book failed' });
-        return res.status(201).send({
+        res.status(201).send({
             ...book.dataValues,
             createdAt: undefined,
             updatedAt: undefined,
             // deletedAt: undefined,
         });
+        await t.commit();
+        return;
     } catch (err) {
+        await t.rollback();
         return res.status(500).send({ error: err.message });
     }
 };
@@ -31,7 +39,7 @@ export const getAllBook = async (req: Request, res: Response) => {
         const page = req.query.page ? Number(req.query.page) - 1 : 0;
         const offset = page * limit;
         const order = [
-            ['title', 'DESC'],
+            // ['title', 'DESC'],
             ['updatedAt', 'DESC'],
         ];
         const book = await Book.findAndCountAll({
@@ -42,9 +50,10 @@ export const getAllBook = async (req: Request, res: Response) => {
             limit,
             offset,
         });
-        if (!book) {
-            return res.status(404).send({ error: 'No books have been registered yet.' });
-        }
+        // if (book.rows.length == 0) {
+        //     return res.status(404).send({ error: 'No books have been registered yet.' });
+        // }
+        if (book.rows.length == 0) return res.status(200).send({});
         const response = await getPagingData(book, page + 1, limit);
         return res.status(200).send({
             totalBooks: response.totalDatas,
@@ -66,6 +75,16 @@ export const searchBook = async (req: Request, res: Response) => {
             where: {
                 [Op.or]: [
                     {
+                        title: {
+                            [Op.iLike]: `${req.query.search}%`,
+                        },
+                    },
+                    {
+                        subtitle: {
+                            [Op.iLike]: `${req.query.search}%`,
+                        },
+                    },
+                    {
                         ISBN_10: {
                             [Op.like]: `${req.query.search}%`,
                         },
@@ -81,9 +100,10 @@ export const searchBook = async (req: Request, res: Response) => {
             limit,
             offset,
         });
-        if (!book) {
-            return res.status(404).send({ error: 'Can Not Find Your Book' });
-        }
+        // if (book.rows.length == 0) {
+        //     return res.status(404).send({ error: 'Can Not Find Your Book' });
+        // }
+        if (book.rows.length == 0) return res.status(200).send({});
         const response = await getPagingData(book, page + 1, limit);
         return res.status(200).send({
             totalBooks: response.totalDatas,
@@ -200,8 +220,8 @@ export const getReviewList = async (req: Request, res: Response) => {
             limit,
             offset,
         });
-        if (!review) return res.status(404).send({ error: 'No books have been reviewed yet.' });
-
+        // if (review.rows.length == 0) return res.status(404).send({ error: 'No books have been reviewed yet.' });
+        if (review.rows.length == 0) return res.status(200).send({});
         const response = await getPagingData(review, page + 1, limit);
 
         res.status(201).send({

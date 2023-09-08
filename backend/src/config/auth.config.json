@@ -1,0 +1,7 @@
+{
+    "secret" : "nec-intern-key",
+    "tokenLife": 600, 
+    "refreshTokenSecret": "refesh-nec-intern-key",
+    "refreshTokenLife": 86400
+}
+

@@ -17,5 +17,6 @@ export const googleBookApiSlice = createApi({
         }
         return result;
     },
+    keepUnusedDataFor: 0,
     endpoints: builder => ({}),
 });

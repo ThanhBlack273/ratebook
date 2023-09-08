@@ -2,6 +2,7 @@ import {FetchBaseQueryError} from '@reduxjs/toolkit/dist/query';
 import {Platform} from 'react-native';
 import {IGGBook} from '../../slices/books/googleBooksType';
 import {IBook} from '../../slices/books';
+import {INotification} from '../../slices/notifications';
 
 interface ErrorFormServer {
     [key: string]: string | ErrorFormServer | ErrorFormServer[];
@@ -20,17 +21,19 @@ interface PayloadError {
     };
 }
 
-export const isAllValidFieldOfObject = (obj: any): Boolean => {
+export const isAllValidFieldOfObject = (obj: any, exceptArr?: string[]): Boolean => {
     let isAllValidField = true;
     for (const idx in obj) {
+        if (exceptArr && exceptArr.length !== 0 && exceptArr.includes(idx)) continue;
         isAllValidField = isAllValidField && Boolean(obj[idx]);
     }
     return isAllValidField;
 };
 
-export const isAllInValidFieldOfObject = (obj: any): Boolean => {
+export const isAllInValidFieldOfObject = (obj: any, exceptArr?: string[]): Boolean => {
     let isAllValidField = false;
     for (const idx in obj) {
+        if (exceptArr && exceptArr.length !== 0 && exceptArr.includes(idx)) continue;
         isAllValidField = isAllValidField || Boolean(obj[idx]);
     }
     return !isAllValidField;
@@ -93,3 +96,15 @@ export const transformResponseGGBook = (item: IGGBook): IBook => ({
     title: item.volumeInfo.title,
     subtitle: item.volumeInfo.subtitle,
 });
+
+export const transformToDate = (date: string | undefined): string => {
+    if (!date) return '';
+    const instance = new Date(date);
+    return instance.getDate() + '/' + (instance.getMonth() + 1) + '/' + instance.getFullYear();
+};
+
+export const selectStrByNotiType = (notification: INotification) => {
+    if (notification.type === 'share') return ` shared your review: "${notification.review?.content}"`;
+    if (notification.type === 'like') return ` liked your review: "${notification.review?.content}"`;
+    if (notification.type === 'request') return ` requested to review the book: "${notification.book?.title}"`;
+};

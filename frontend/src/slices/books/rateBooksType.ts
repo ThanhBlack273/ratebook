@@ -1,7 +1,7 @@
 import {Asset} from 'react-native-image-picker';
 
 export interface IBook {
-    id: number;
+    id: string;
     ISBN_10?: string;
     ISBN_13?: string;
     title: string;
@@ -15,8 +15,11 @@ export interface IBook {
     small?: string;
     medium?: string;
     large?: string;
+    star?: number;
+    countRate?: number;
     createdAt?: string;
     updatedAt?: string;
+    likedListUser?: any[];
 }
 
 export interface ISearchBooksOutput {
@@ -56,26 +59,14 @@ export interface IRegisterBookInput {
     large?: string;
 }
 
-export interface IRegisterBookOutput {
-    title: string;
-    subtitle: string;
-    author: string[];
-    publisher: string;
-    publishedDate: string;
-    ISBN_10: string;
-    ISBN_13: string;
-    description: string;
-    photoLink: string;
-    smallThumbnail?: string;
-    thumbnail?: string;
-    small?: string;
-    medium?: string;
-    large?: string;
-}
-
-export interface IGetRegisteredBooksOutput {
+export interface IGetBooksOutput {
     totalBooks: number;
     totalPages: number;
     currentPage: number;
     books: IBook[];
+}
+
+export interface IGetBookInput {
+    ISBN_10: string;
+    ISBN_13: string;
 }

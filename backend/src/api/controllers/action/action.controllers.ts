@@ -5,37 +5,58 @@ import { Op } from 'sequelize';
 import { CreateNotificationDTO } from '../../interfaces/notification.dto';
 import { getPagingData } from '../../../helpers/paging';
 import * as mapper from './mapper';
+import sequelizeConnection from '../../../config/db.config';
 
 //import { Op } from 'sequelize';
 
 export const addReview = async (req: Request, res: Response) => {
+    const t = await sequelizeConnection.transaction();
     try {
         const payload: CreateReviewDTO = req.body;
-        const review = await Review.create({
-            bookId: payload.bookId,
-            userId: res.locals.id,
-            rate: payload.rate,
-            content: payload.content,
-            photoReview: payload.photoReview,
-        });
-        return res.status(201).send(review);
+        const review = await Review.create(
+            {
+                bookId: payload.bookId,
+                userId: res.locals.id,
+                rate: payload.rate,
+                content: payload.content,
+                photoReview: payload.photoReview,
+            },
+            { transaction: t },
+        );
+        if (!review) {
+            await t.rollback();
+            return res.status(400).send({ error: "can't create review" });
+        }
+        res.status(201).send(review);
+        await t.commit();
+        return;
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 
 //format code
 export const updateReview = async (req, res) => {
+    const t = await sequelizeConnection.transaction();
     try {
         const payload: UpdateReviewDTO = req.body;
-        const review = await res.locals.review.update({
-            rate: payload.rate,
-            content: payload.content,
-            photoReview: payload.photoReview,
-        });
-        if (review) return res.status(201).send(review);
+        const review = await res.locals.review.update(
+            {
+                rate: payload.rate,
+                content: payload.content,
+                photoReview: payload.photoReview,
+            },
+            { transaction: t },
+        );
+        if (review) {
+            res.status(201).send(review);
+            await t.commit();
+            return;
+        }
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 
@@ -98,7 +119,8 @@ export const getAllReview = async (req: Request, res: Response) => {
             limit,
             offset,
         });
-        if (!review) return res.status(404).send({ error: 'Do not have any review' });
+        // if (review.rows.length == 0) return res.status(404).send({ error: 'Do not have any review' });
+        if (review.rows.length == 0) return res.status(200).send({});
         const response = await getPagingData(review, page + 1, limit);
         // const newData = await response.datas.map(mapper.toGetAllReview);
         return res.status(200).send({
@@ -157,74 +179,121 @@ export const getAllReview = async (req: Request, res: Response) => {
 // };
 
 export const likeBook = async (req: Request, res: Response) => {
+    const t = await sequelizeConnection.transaction();
     try {
-        const liked = await LikeBook.create({
-            bookId: Number(req.params.bookId),
-            userId: res.locals.id,
-        });
-        if (liked) return res.status(201).send({ liked: true });
+        const liked = await LikeBook.create(
+            {
+                bookId: Number(req.params.bookId),
+                userId: res.locals.id,
+            },
+            { transaction: t },
+        );
+        if (liked) {
+            res.status(201).send({ liked: true });
+            await t.commit();
+            return;
+        }
+        return res.status(201).send({ liked: true });
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 
 export const likeReview = async (req: Request, res: Response) => {
+    const t = await sequelizeConnection.transaction();
     try {
-        const liked = await LikeReview.create({
-            reviewId: Number(req.params.reviewId),
-            userId: res.locals.id,
-        });
-        if (liked) return res.status(201).send({ liked: true });
+        const liked = await LikeReview.create(
+            {
+                reviewId: Number(req.params.reviewId),
+                userId: res.locals.id,
+            },
+            { transaction: t },
+        );
+        if (liked) {
+            res.status(201).send({ liked: true });
+            await t.commit();
+            return;
+        }
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 
 export const hideReview = async (req: Request, res: Response) => {
+    const t = await sequelizeConnection.transaction();
     try {
-        const hided = await HideReview.create({
-            reviewId: Number(req.params.reviewId),
-            userId: res.locals.id,
-        });
-        if (hided) return res.status(201).send({ hided: true });
+        const hided = await HideReview.create(
+            {
+                reviewId: Number(req.params.reviewId),
+                userId: res.locals.id,
+            },
+            { transaction: t },
+        );
+        if (hided) {
+            res.status(201).send({ hided: true });
+            await t.commit();
+            return;
+        }
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 /////////////
 
 export const deleteReview = async (req, res) => {
+    const t = await sequelizeConnection.transaction();
     try {
-        const review = await res.locals.review.update({
-            deleted: true,
-        });
-        if (review) return res.status(201).send({});
+        const review = await res.locals.review.update(
+            {
+                deleted: true,
+            },
+            { transaction: t },
+        );
+        if (review) {
+            res.status(201).send({});
+            await t.commit();
+            return;
+        }
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 
 export const addNoti = async (req, res) => {
+    const t = await sequelizeConnection.transaction();
     try {
         const payload: CreateNotificationDTO = req.body;
         const listToUserId = payload.toUserId;
         const newNoti = await Promise.all(
             listToUserId.map(async (toUserId) => {
-                const noti = await Notification.create({
-                    isSeen: payload.isSeen,
-                    type: payload.type,
-                    fromUserId: res.locals.id,
-                    toUserId: toUserId,
-                    reviewId: payload.reviewId,
-                    bookId: payload.bookId,
-                });
+                const noti = await Notification.create(
+                    {
+                        isSeen: payload.isSeen,
+                        type: payload.type,
+                        fromUserId: res.locals.id,
+                        toUserId: toUserId,
+                        reviewId: payload.reviewId,
+                        bookId: payload.bookId,
+                    },
+                    { transaction: t },
+                );
                 return noti.dataValues;
             }),
         );
-        if (!newNoti) return res.status(500).send({ error: 'Adding noti failed' });
-        return res.status(201).send(newNoti);
+        if (!newNoti) {
+            await t.rollback();
+            return res.status(500).send({ error: 'Adding noti failed' });
+        }
+        res.status(201).send(newNoti);
+        await t.commit();
+        return;
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 
@@ -265,9 +334,10 @@ export const noti = async (req, res) => {
             limit,
             offset,
         });
-        if (!noti) {
-            res.status(404).send({ error: 'Do not have any notification' });
-        }
+        // if (noti.rows.length == 0) {
+        //     res.status(404).send({ error: 'Do not have any notification' });
+        // }
+        if (noti.rows.length == 0) return res.status(200).send({});
         const response = await getPagingData(noti, page + 1, limit);
         return res.status(200).send({
             totalNotis: response.totalDatas,
@@ -281,6 +351,7 @@ export const noti = async (req, res) => {
 };
 
 export const seenNoti = async (req, res) => {
+    const t = await sequelizeConnection.transaction();
     try {
         const noti = await Notification.findOne({
             where: {
@@ -288,13 +359,15 @@ export const seenNoti = async (req, res) => {
                 toUserId: res.locals.id,
             },
         });
-        // console.log(noti.dataValues);
         if (!noti) return res.status(404).send({ error: 'Can not find your notification' });
-        noti.update({ isSeen: true }).then((newNoti) => {
+        noti.update({ isSeen: true }, { transaction: t }).then(async (newNoti) => {
+            await t.commit();
+            return;
             return res.status(201).send(newNoti.isSeen);
         });
     } catch (err) {
-        res.status(500).send({ error: err.message });
+        await t.rollback();
+        return res.status(500).send({ error: err.message });
     }
 };
 

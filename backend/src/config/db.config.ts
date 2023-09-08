@@ -1,23 +1,32 @@
-// require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 import { Sequelize } from 'sequelize';
 
-// const dbName = 'railway'; //process.env.DB_NAME;
-// const dbUser = 'postgres'; //process.env.DB_USER;
-// const dbHost = 'containers-us-west-192.railway.app'; //process.env.DB_HOST;
-// const dbDriver = 'postgres'; //process.env.DB_DRIVER;
-// const dbPassword = '5wzAKl4vI1WSE6DYl3BF'; //process.env.DB_PASSWORD;
-// const dbPort = 5918;
+let dbName, dbUser, dbHost, dbPassword, dbPort;
 
-const dbName = 'formatcode'; //process.env.DB_NAME;
-const dbUser = 'postgres'; //process.env.DB_USER;
-const dbHost = 'localhost'; //process.env.DB_HOST;
-const dbDriver = 'postgres'; //process.env.DB_DRIVER;
-const dbPassword = 'abc123'; //process.env.DB_PASSWORD;
-const dbPort = 5432;
+if (process.env.NODE_ENV === 'TEST') {
+    dbName = process.env.DB_TEST_DEFAULT as string;
+    dbUser = process.env.USER_DEFAULT as string;
+    dbHost = process.env.HOST_DEFAULT as string;
+    dbPassword = process.env.PASSWORD_DEFAULT as string;
+    dbPort = Number(process.env.PORT_DEFAULT);
+} else if (process.env.NODE_ENV === 'RW') {
+    dbName = process.env.DB_RAILWAY as string;
+    dbUser = process.env.USER_RAILWAY as string;
+    dbHost = process.env.HOST_RAILWAY as string;
+    dbPassword = process.env.PASSWORD_RAILWAY;
+    dbPort = Number(process.env.PORT_RAILWAY);
+} else if (process.env.NODE_ENV === 'Local') {
+    dbName = process.env.DB_DEFAULT as string;
+    dbUser = process.env.USER_DEFAULT as string;
+    dbHost = process.env.HOST_DEFAULT as string;
+    dbPassword = process.env.PASSWORD_DEFAULT as string;
+    dbPort = Number(process.env.PORT_DEFAULT);
+}
 
 const sequelizeConnection = new Sequelize(dbName, dbUser, dbPassword, {
     host: dbHost,
-    dialect: dbDriver,
+    dialect: 'postgres',
     logging: false,
     port: dbPort,
 

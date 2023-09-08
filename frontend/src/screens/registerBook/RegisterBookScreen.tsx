@@ -1,19 +1,17 @@
 import {ActivityIndicator, StyleSheet, View} from 'react-native';
 import {useFormik} from 'formik';
-import {useEffect, useRef, useState} from 'react';
+import {useEffect, useRef} from 'react';
 import Toast from 'react-native-toast-message';
 import * as yup from 'yup';
 import {DateTimePickerEvent} from '@react-native-community/datetimepicker';
+import {useDispatch} from 'react-redux';
 
 import {DatePicker, ImagePickerBook, LoadingButton, TextInputStyle} from '../../common/components';
-import {createFormData, isAllInValidFieldOfObject} from '../../common/utils/heaper';
+import {createFormData, isAllInValidFieldOfObject, isAllValidFieldOfObject} from '../../common/utils/heaper';
 import {RegisterBookScreenProps} from '../../navigator/StackNavigatorTypes';
 import {getImageAsset} from '../../common/utils/imagePicker';
-import {
-    useGetGGBookQuery,
-    usePostImageBookMutation,
-    useRegisterBookMutation,
-} from '../../slices/books';
+import {useGetGGBookQuery, useRegisterBookMutation} from '../../slices/books';
+import {useDeleteImageMutation, useUploadImageMutation} from '../../slices/images';
 
 const validationSchema = yup.object({
     title: yup.string().required('Title is required'),
@@ -48,7 +46,8 @@ const RegisterBookScreen = ({route, navigation}: RegisterBookScreenProps) => {
     const photoLinkkRef = useRef<string>('');
 
     // Call API
-    const [postImage] = usePostImageBookMutation();
+    const [uploadImage] = useUploadImageMutation();
+    const [deleteImage] = useDeleteImageMutation();
     const [registerBook, {data: registedBook, isLoading}] = useRegisterBookMutation();
     const {data: bookData, isFetching} = useGetGGBookQuery(route.params.id as string, {
         skip: !route.params.id,
@@ -63,9 +62,7 @@ const RegisterBookScreen = ({route, navigation}: RegisterBookScreenProps) => {
                 ISBN_10: bookData.ISBN_10 || '',
                 ISBN_13: bookData.ISBN_13 || '',
                 photoLink: bookData.smallThumbnail || bookData.small || '',
-                publishedDate: bookData.publishedDate
-                    ? new Date(bookData.publishedDate)
-                    : new Date(),
+                publishedDate: bookData.publishedDate ? new Date(bookData.publishedDate) : new Date(),
                 publisher: bookData.publisher || '',
                 subtitle: bookData.subtitle || '',
                 title: bookData.title || '',
@@ -84,29 +81,30 @@ const RegisterBookScreen = ({route, navigation}: RegisterBookScreenProps) => {
                     }),
             });
         }
-        return () => {
-            const formData = createFormData({
-                oldLink: photoLinkkRef.current,
-            });
-            // Deleting image when user go back page
-            // const deleteOldImage = async () => await postImage(formData).unwrap();
-            // deleteOldImage();
-        };
     }, [registedBook]);
+
+    useEffect(() => {
+        return () => {
+            if (photoLinkkRef.current && !photoLinkkRef.current.includes('.google'))
+                deleteImage({oldLink: [photoLinkkRef.current]}).unwrap();
+        };
+    }, []);
 
     // functions handle events
     const handleChooseImage = async () => {
         const asset = await getImageAsset();
         if (asset) {
+            if (formik.values.photoLink && !formik.values.photoLink.includes('.google'))
+                await deleteImage({oldLink: [formik.values.photoLink]});
             const formData = createFormData({
-                photoBook: asset,
-                oldLink: photoLinkkRef.current,
+                image: asset,
             });
-            const {photoLink} = await postImage(formData).unwrap();
+            const {photoLink} = await uploadImage(formData).unwrap();
             formik.setFieldValue('photoLink', photoLink);
             photoLinkkRef.current = photoLink;
         }
     };
+
     const handleSubmit = async (values: typeof initialValues) => {
         await registerBook({
             ...values,
@@ -116,13 +114,13 @@ const RegisterBookScreen = ({route, navigation}: RegisterBookScreenProps) => {
             smallThumbnail: values.photoLink,
         }).unwrap();
     };
+
     const handleChangeDate = (e: DateTimePickerEvent, date: Date | undefined) => {
         const publishedDate = date ? date : formik.values.publishedDate;
         formik.setFieldValue('publishedDate', publishedDate);
     };
 
-    if (isFetching)
-        return <ActivityIndicator style={styles.activityIndicator} size="large" color="#1E90FF" />;
+    if (isFetching) return <ActivityIndicator style={styles.activityIndicator} size="large" color="#1E90FF" />;
 
     return (
         <View style={styles.container}>
@@ -165,7 +163,11 @@ const RegisterBookScreen = ({route, navigation}: RegisterBookScreenProps) => {
                         placeholder="Please provide book's publisher"
                         error={formik.touched.publisher && formik.errors.publisher}
                     />
-                    <DatePicker onChange={handleChangeDate} value={formik.values.publishedDate} />
+                    <DatePicker
+                        label="Published date"
+                        onChange={handleChangeDate}
+                        value={formik.values.publishedDate}
+                    />
                     <TextInputStyle
                         label="ISBN 10"
                         onChangeText={formik.handleChange('ISBN_10')}
@@ -192,10 +194,15 @@ const RegisterBookScreen = ({route, navigation}: RegisterBookScreenProps) => {
                     />
                 </View>
                 <LoadingButton
-                    text="Sign In"
+                    text="Register"
                     onPress={() => formik.handleSubmit()}
                     isLoading={isLoading}
-                    disabled={!isAllInValidFieldOfObject(formik.errors)}
+                    disabled={
+                        !(
+                            isAllValidFieldOfObject(formik.values, ['subtitle']) &&
+                            isAllInValidFieldOfObject(formik.errors)
+                        )
+                    }
                 />
             </View>
         </View>

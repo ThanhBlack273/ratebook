@@ -12,3 +12,7 @@ export type RegisteredBookTabProps = CompositeScreenProps<
     MaterialTopTabScreenProps<HomeTabParamList, 'RegisteredBook'>,
     NativeStackScreenProps<StackParamList>
 >;
+export type ReviewBookTabProps = CompositeScreenProps<
+    MaterialTopTabScreenProps<HomeTabParamList, 'ReviewBook'>,
+    NativeStackScreenProps<StackParamList>
+>;

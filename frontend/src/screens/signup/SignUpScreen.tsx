@@ -1,4 +1,4 @@
-import {useEffect} from 'react';
+import {useEffect, useRef} from 'react';
 import {View, StyleSheet, Image} from 'react-native';
 import {DateTimePickerEvent} from '@react-native-community/datetimepicker';
 import Toast from 'react-native-toast-message';
@@ -19,13 +19,11 @@ import {
     isAllValidFieldOfObject,
     isFormError,
 } from '../../common/utils/heaper';
+import {useDeleteImageMutation, useUploadImageMutation} from '../../slices/images';
 
 const validationSchema = yup.object({
     email: yup.string().email('Enter a valid email').required('Email is required'),
-    password: yup
-        .string()
-        .min(8, 'Password should be of minimum 8 characters length')
-        .required('Password is required'),
+    password: yup.string().min(8, 'Password should be of minimum 8 characters length').required('Password is required'),
     passwordConfirm: yup
         .string()
         .oneOf([yup.ref('password')], 'Passwords must match')
@@ -47,7 +45,7 @@ const initialValues: ISignUpInput = {
     phoneNumber: '',
     secretAsk: 'What is your mother name',
     secretAns: '',
-    avatar: undefined,
+    avatar: '',
     dateOfBirth: new Date(),
 };
 
@@ -58,6 +56,8 @@ type ISignUpInputError =
     | null;
 
 const SignUpScreen = ({route, navigation}: SignUpProps) => {
+    const [uploadImage] = useUploadImageMutation();
+    const [deleteImage] = useDeleteImageMutation();
     const [signUp, {data, isLoading, error}] = useSignUpMutation();
     const formik = useFormik({
         initialValues: initialValues,
@@ -66,6 +66,7 @@ const SignUpScreen = ({route, navigation}: SignUpProps) => {
             await handleSubmit(values);
         },
     });
+    const photoLinkkRef = useRef<string>('');
 
     useEffect(() => {
         if (data) {
@@ -83,9 +84,23 @@ const SignUpScreen = ({route, navigation}: SignUpProps) => {
         }
     }, [data, error]);
 
+    useEffect(() => {
+        return () => {
+            if (photoLinkkRef.current) deleteImage({oldLink: [photoLinkkRef.current]}).unwrap();
+        };
+    }, []);
+
     const handleChooseImage = async () => {
         const asset = await getImageAsset();
-        if (asset) formik.setFieldValue('avatar', asset);
+        if (asset) {
+            if (formik.values.avatar) await deleteImage({oldLink: [formik.values.avatar]});
+            const formData = createFormData({
+                image: asset,
+            });
+            const {photoLink} = await uploadImage(formData).unwrap();
+            formik.setFieldValue('avatar', photoLink);
+            photoLinkkRef.current = photoLink;
+        }
     };
 
     const handleChangeDate = (e: DateTimePickerEvent, date: Date | undefined) => {
@@ -94,8 +109,8 @@ const SignUpScreen = ({route, navigation}: SignUpProps) => {
     };
 
     const handleSubmit = async (values: ISignUpInput) => {
-        const formData = createFormData(values);
-        await signUp(formData).unwrap();
+        const data = await signUp(values).unwrap();
+        if (data) photoLinkkRef.current = '';
     };
 
     return (
@@ -153,9 +168,7 @@ const SignUpScreen = ({route, navigation}: SignUpProps) => {
                                 label="Secret question"
                                 items={QUESTION_LIST}
                                 selectedValue={formik.values.secretAsk}
-                                onValueChange={value =>
-                                    formik.setFieldValue('secretAsk', value.toString())
-                                }
+                                onValueChange={value => formik.setFieldValue('secretAsk', value.toString())}
                                 onBlur={formik.handleBlur('secretAsk')}
                             />
                         </View>
@@ -170,9 +183,9 @@ const SignUpScreen = ({route, navigation}: SignUpProps) => {
                             />
                         </View>
                     </View>
-                    <DatePicker onChange={handleChangeDate} value={formik.values.dateOfBirth} />
+                    <DatePicker label="Date of birth" onChange={handleChangeDate} value={formik.values.dateOfBirth} />
                     <ImagePickerAvatar
-                        uri={formik.values.avatar ? (formik.values.avatar.uri as string) : ''}
+                        uri={formik.values.avatar}
                         label="Choose your avatar"
                         style={styles.imageInput}
                         onPress={handleChooseImage}
@@ -182,12 +195,7 @@ const SignUpScreen = ({route, navigation}: SignUpProps) => {
                     text="Sign In"
                     isLoading={isLoading}
                     onPress={() => formik.handleSubmit()}
-                    disabled={
-                        !(
-                            isAllValidFieldOfObject(formik.values) &&
-                            isAllInValidFieldOfObject(formik.errors)
-                        )
-                    }
+                    disabled={!(isAllValidFieldOfObject(formik.values) && isAllInValidFieldOfObject(formik.errors))}
                 />
             </View>
         </ScrollViewStyle>
@@ -200,6 +208,7 @@ const styles = StyleSheet.create({
         display: 'flex',
         alignItems: 'center',
         backgroundColor: 'white',
+        height: '100%',
     },
     content: {
         marginTop: 20,

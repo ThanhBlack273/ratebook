@@ -15,17 +15,8 @@ import {rateBookApi, useGetBooksGoogleQuery, useGetBooksRateBookQuery} from '../
 import {SearchScreenProps} from '../../navigator/StackNavigatorTypes';
 import {useDispatch} from 'react-redux';
 import {AppDispatch} from '../../slices/store';
-
-const SearchRadioItems = [
-    {
-        label: 'From RateBook',
-        value: 'ratebook',
-    },
-    {
-        label: 'From Google',
-        value: 'google',
-    },
-];
+import {PADDING_OFFSET, SEARCH_RADIO_ITEMS} from '../../common/constants';
+import Toast from 'react-native-toast-message';
 
 const SearchScreen = ({route, navigation}: SearchScreenProps) => {
     // States
@@ -38,12 +29,9 @@ const SearchScreen = ({route, navigation}: SearchScreenProps) => {
     const dispatch: AppDispatch = useDispatch();
 
     //Call APIs
-    const {data: booksOfRateBook, isFetching: isRateBookFetching} = useGetBooksRateBookQuery(
-        query,
-        {
-            skip: mode === 'google' || query.searchText === '',
-        },
-    );
+    const {data: booksOfRateBook, isFetching: isRateBookFetching} = useGetBooksRateBookQuery(query, {
+        skip: mode === 'google' || query.searchText === '',
+    });
     const {data: booksOfGGBook, isFetching: isGGBookFetching} = useGetBooksGoogleQuery(query, {
         skip: mode === 'ratebook' || query.searchText === '',
     });
@@ -55,21 +43,41 @@ const SearchScreen = ({route, navigation}: SearchScreenProps) => {
 
     // functions handle events
     const handleSearch = () => {
+        if (searchText === query.searchText) return;
         setQuery({page: 1, searchText});
     };
     const handleMoveDown = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
         if (
-            event.nativeEvent.contentOffset.y + event.nativeEvent.layoutMeasurement.height + 100 >
+            event.nativeEvent.contentOffset.y + event.nativeEvent.layoutMeasurement.height + PADDING_OFFSET >
             event.nativeEvent.contentSize.height
         ) {
+            if (isGGBookFetching || isRateBookFetching) return;
             setQuery(prev => ({...prev, page: prev.page + 1}));
         }
     };
     const handlePress = async (id: string) => {
-        // const {isSuccess} = await dispatch(rateBookApi.endpoints.getBookRateBook.initiate(id));
-        const hasBookTemp = false; // The above api is not available
-        if (hasBookTemp || mode === 'ratebook') navigation.navigate('Detail', {id});
-        if (!hasBookTemp && mode === 'google') navigation.navigate('RegisterBook', {id});
+        const book = bookData?.books.find(book => book.id === id);
+        if (!(book && book.ISBN_10 && book.ISBN_13)) {
+            Toast.show({
+                type: 'error',
+                text1: 'This book can not register',
+            });
+            return;
+        }
+        const {data, isSuccess, isError} = await dispatch(
+            rateBookApi.endpoints.getBookRateBook.initiate({
+                ISBN_10: book.ISBN_10,
+                ISBN_13: book.ISBN_13,
+            }),
+        );
+        if (isSuccess) navigation.navigate('Detail', {id: data.id});
+        if (isError && mode === 'google') {
+            Toast.show({
+                type: 'success',
+                text1: 'You can register book',
+            });
+            navigation.navigate('RegisterBook', {id});
+        }
     };
 
     return (
@@ -87,26 +95,16 @@ const SearchScreen = ({route, navigation}: SearchScreenProps) => {
                     />
                     <TouchableOpacity
                         onPress={handleSearch}
-                        style={[
-                            styles.searchButton,
-                            !Boolean(searchText) && {backgroundColor: 'lightgray'},
-                        ]}
+                        style={[styles.searchButton, !Boolean(searchText) && {backgroundColor: 'lightgray'}]}
                         disabled={!Boolean(searchText)}>
                         <AntDesign name="search1" color="white" style={styles.searchIcon} />
                     </TouchableOpacity>
                 </View>
-                <RadioGroup
-                    items={SearchRadioItems}
-                    value={mode}
-                    onChange={setMode}
-                    style={styles.radio}
-                />
+                <RadioGroup items={SEARCH_RADIO_ITEMS} value={mode} onChange={setMode} style={styles.radio} />
                 {bookData && (
                     <>
                         <View style={styles.resultTitle}>
-                            <Text style={styles.resultTitleText}>
-                                {bookData.totalBooks} results :
-                            </Text>
+                            <Text style={styles.resultTitleText}>{bookData.totalBooks} results :</Text>
                         </View>
                         <View style={styles.books}>
                             {bookData.books.length === 0 && <Text>No result is found</Text>}
@@ -115,9 +113,7 @@ const SearchScreen = ({route, navigation}: SearchScreenProps) => {
                                     <Book
                                         key={book.id}
                                         id={book.id}
-                                        name={
-                                            book.title + (book.subtitle ? ': ' + book.subtitle : '')
-                                        }
+                                        name={book.title + (book.subtitle ? ': ' + book.subtitle : '')}
                                         authors={book.author?.join(', ') || ''}
                                         imgUri={book.thumbnail || ''}
                                         publisher={book.publisher || ''}
@@ -129,11 +125,7 @@ const SearchScreen = ({route, navigation}: SearchScreenProps) => {
                     </>
                 )}
                 {(isRateBookFetching || isGGBookFetching) && (
-                    <ActivityIndicator
-                        style={styles.activityIndicator}
-                        size="large"
-                        color="#1E90FF"
-                    />
+                    <ActivityIndicator style={styles.activityIndicator} size="large" color="#1E90FF" />
                 )}
             </ScrollViewStyle>
         </View>
@@ -185,6 +177,7 @@ const styles = StyleSheet.create({
     },
     book: {
         marginTop: 10,
+        height: 130,
     },
     resultTitle: {
         width: '90%',

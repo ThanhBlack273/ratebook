@@ -11,19 +11,23 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import TextInputStyle from './TextInputStyle';
 
 interface DatePickerIOSProps extends Omit<IOSNativeProps, 'onChange' | 'value'> {
+    label: string;
     onChange: (e: DateTimePickerEvent, data: Date | undefined) => void;
     value: Date;
 }
 interface DatePickerAndroidProps extends Omit<AndroidNativeProps, 'onChange' | 'value'> {
+    label: string;
     onChange: (e: DateTimePickerEvent, data: Date | undefined) => void;
     value: Date;
 }
 interface DatePickerWindowProps extends Omit<WindowsNativeProps, 'onChange' | 'value'> {
+    label: string;
     onChange: (e: DateTimePickerEvent, data: Date | undefined) => void;
     value: Date;
 }
 
 const DatePicker = ({
+    label,
     onChange,
     value,
     ...props
@@ -37,19 +41,13 @@ const DatePicker = ({
         <View style={styles.container}>
             <View style={styles.input}>
                 <TextInputStyle
-                    label="Date of birth"
+                    label={label}
                     showSoftInputOnFocus={false}
                     value={value.toDateString()}
                     editable={false}
                 />
             </View>
-            <AntDesign
-                style={styles.icon}
-                name="calendar"
-                size={20}
-                color="black"
-                onPress={() => setShow(true)}
-            />
+            <AntDesign style={styles.icon} name="calendar" size={20} color="black" onPress={() => setShow(true)} />
             {show && <RNDateTimePicker onChange={handleChange} value={value} {...props} />}
         </View>
     );

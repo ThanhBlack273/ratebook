@@ -141,6 +141,14 @@ LikeReview.beforeDestroy(async (likeReview, options) => {
             countLike: review.dataValues.countLike - 1,
         });
     }
+
+    const noti = await Notification.destroy({
+        where: {
+            reviewId: likeReview.dataValues.reviewId,
+            fromUserId: likeReview.dataValues.userId,
+            type: 'like',
+        },
+    });
 });
 
 export { User, Book, Review, LikeBook, LikeReview, HideReview, Notification };

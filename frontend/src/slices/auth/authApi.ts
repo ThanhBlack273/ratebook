@@ -1,7 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-
 import {rateBookApiSlice} from '../rateBookApiSlice';
 import {
+    IChangePasswordInput,
+    IChangePasswordOutput,
     IForgotPasswordInput,
     IForgotPasswordOutput,
     IResetPasswordInput,
@@ -10,7 +10,8 @@ import {
     ISignUpInput,
     IUSer,
 } from './authType';
-import {userLoggedIn} from './authSlice';
+import {updateUser, userLoggedIn} from './authSlice';
+import {setSecureValue} from '../../common/utils/keyChain';
 
 const authApi = rateBookApiSlice.injectEndpoints({
     endpoints: builder => ({
@@ -24,9 +25,9 @@ const authApi = rateBookApiSlice.injectEndpoints({
                 try {
                     const result = await queryFulfilled;
 
-                    await AsyncStorage.setItem('accessToken', result.data.accessToken);
-                    await AsyncStorage.setItem('refreshToken', result.data.refreshToken);
-                    await AsyncStorage.setItem('user', JSON.stringify(result.data.user));
+                    await setSecureValue('accessToken', result.data.accessToken);
+                    await setSecureValue('refreshToken', result.data.refreshToken);
+                    await setSecureValue('user', JSON.stringify(result.data.user));
 
                     dispatch(userLoggedIn(result.data));
                 } catch (error) {
@@ -34,12 +35,11 @@ const authApi = rateBookApiSlice.injectEndpoints({
                 }
             },
         }),
-        SignUp: builder.mutation<IUSer, FormData>({
+        SignUp: builder.mutation<IUSer, ISignUpInput>({
             query: data => ({
                 url: '/auth/signup',
                 method: 'POST',
                 body: data,
-                formData: true,
             }),
         }),
         forgotPassword: builder.mutation<IForgotPasswordOutput, IForgotPasswordInput>({
@@ -57,6 +57,30 @@ const authApi = rateBookApiSlice.injectEndpoints({
                 body: data,
             }),
         }),
+        getUserInfo: builder.query<IUSer, number>({
+            query: userId => ({
+                url: `/user//get_user_info?id=${userId}`,
+                method: 'GET',
+            }),
+        }),
+        changePassword: builder.mutation<IChangePasswordOutput, IChangePasswordInput>({
+            query: data => ({
+                url: '/auth/change_password',
+                method: 'PATCH',
+                body: data,
+            }),
+            async onQueryStarted(arg, {queryFulfilled, dispatch}) {
+                try {
+                    const result = await queryFulfilled;
+
+                    await setSecureValue('accessToken', result.data.accessToken);
+                    await setSecureValue('user', JSON.stringify(result.data.user));
+                    dispatch(updateUser(result.data));
+                } catch (error) {
+                    // do something
+                }
+            },
+        }),
     }),
 });
 
@@ -65,6 +89,8 @@ export const {
     useSignUpMutation,
     useForgotPasswordMutation,
     useResetPasswordMutation,
+    useGetUserInfoQuery,
+    useChangePasswordMutation,
 } = authApi;
 
 export default authApi;

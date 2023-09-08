@@ -1,18 +1,25 @@
 import {NativeStackHeaderProps} from '@react-navigation/native-stack';
-import {StyleSheet, Text, View} from 'react-native';
+import {StyleProp, StyleSheet, Text, View, ViewStyle} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-const Header = ({options, navigation}: NativeStackHeaderProps) => {
+interface HeaderProps extends NativeStackHeaderProps {
+    style?: StyleProp<ViewStyle>;
+    isNavigation?: boolean;
+}
+
+const Header = ({options, navigation, isNavigation = true, style}: HeaderProps) => {
     return (
-        <View style={styles.headerContainer}>
+        <View style={[styles.headerContainer, style]}>
             <View style={styles.headerContent}>
-                <AntDesign
-                    size={20}
-                    style={styles.antDesign}
-                    name="arrowleft"
-                    color="#1E90FF"
-                    onPress={() => navigation.goBack()}
-                />
+                {isNavigation && (
+                    <AntDesign
+                        size={20}
+                        style={styles.antDesign}
+                        name="arrowleft"
+                        color="#1E90FF"
+                        onPress={() => navigation.pop()}
+                    />
+                )}
                 <Text style={styles.title}>{options.title}</Text>
             </View>
         </View>

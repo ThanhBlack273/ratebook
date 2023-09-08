@@ -1,11 +1,11 @@
 import {PayloadAction, createSlice} from '@reduxjs/toolkit';
 import {IUSer} from './authType';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import {removeSecureValue} from '../../common/utils/keyChain';
 
 interface IinitialState {
     accessToken: string | undefined;
     refreshToken: string | undefined;
-    user: IUSer | undefined;
+    user?: IUSer;
 }
 
 const initialState: IinitialState = {
@@ -21,19 +21,24 @@ const authSlice = createSlice({
         userLoggedIn: (state, action: PayloadAction<IinitialState>) => {
             state.accessToken = action.payload.accessToken;
             state.refreshToken = action.payload.refreshToken;
-            state.user = action.payload.user;
+            if (action.payload.user) state.user = action.payload.user;
         },
         userLoggedOut: state => {
             state.accessToken = undefined;
             state.refreshToken = undefined;
             state.user = undefined;
-            AsyncStorage.removeItem('accessToken');
-            AsyncStorage.removeItem('refreshToken');
-            AsyncStorage.removeItem('user');
+            removeSecureValue('accessToken');
+            removeSecureValue('refreshToken');
+            removeSecureValue('user');
+            removeSecureValue('activeNotisCount');
+        },
+        updateUser: (state, action: PayloadAction<Omit<IinitialState, 'refreshToken'>>) => {
+            state.accessToken = action.payload.accessToken;
+            state.user = action.payload.user;
         },
     },
 });
 
-export const {userLoggedIn, userLoggedOut} = authSlice.actions;
+export const {userLoggedIn, userLoggedOut, updateUser} = authSlice.actions;
 
 export default authSlice.reducer;

@@ -13,7 +13,7 @@ export const toGetBookById = (model: any) => {
         thumbnail: model.thumbnail,
         star: model.star,
         countRate: model.countRate,
-        userId: model.userId,
+        userId: model?.userId,
         updatedAt: model.updatedAt,
 
         user: model.User,
@@ -29,6 +29,7 @@ export const toGetReviewList = (model: any) => {
         photoReview: model.photoReview,
         countLike: model.countLike,
         updatedAt: model.updatedAt,
+        userId: model?.userId,
         user: model.User,
         likedReviewListUser: model.likedReviewListUser,
     };

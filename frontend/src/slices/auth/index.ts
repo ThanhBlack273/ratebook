@@ -4,10 +4,12 @@ export {
     useSignUpMutation,
     useForgotPasswordMutation,
     useResetPasswordMutation,
+    useGetUserInfoQuery,
+    useChangePasswordMutation,
 } from './authApi';
 
 export {default as authSlice} from './authSlice';
-export {userLoggedIn, userLoggedOut} from './authSlice';
+export {userLoggedIn, userLoggedOut, updateUser} from './authSlice';
 
 export type {
     ISignInInput,
@@ -17,4 +19,6 @@ export type {
     IForgotPasswordInput,
     IForgotPasswordOutput,
     IResetPasswordInput,
+    IChangePasswordInput,
+    IChangePasswordOutput,
 } from './authType';

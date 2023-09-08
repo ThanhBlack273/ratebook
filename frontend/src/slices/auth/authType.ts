@@ -11,6 +11,7 @@ export interface IUSer {
 export interface ISignInInput {
     email: string;
     password: string;
+    device: string;
 }
 
 export interface ISignInOutput {
@@ -27,7 +28,7 @@ export interface ISignUpInput {
     phoneNumber: string;
     secretAsk: string;
     secretAns: string;
-    avatar: undefined | Asset;
+    avatar: string;
     dateOfBirth: Date;
 }
 
@@ -45,4 +46,22 @@ export interface IResetPasswordInput {
     token: string;
     newPassword: string;
     confirmNewPassword: string;
+}
+
+export interface IChangePasswordInput {
+    password: string;
+    newPassword: string;
+    confirmNewPassword: string;
+}
+
+export interface IChangePasswordOutput {
+    accessToken: string;
+    user: {
+        id: string;
+        email: string;
+        userName: string;
+        dateOfBirth: string;
+        phoneNumber: string;
+        avatar: string;
+    };
 }
