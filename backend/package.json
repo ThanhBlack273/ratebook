@@ -8,7 +8,7 @@
     "start:RW": "cross-env NODE_ENV=RW tsc && node dist/index.js",
     "build": "npx tsc",
     "lint": "eslint . --ext .ts",
-    "test": "cross-env NODE_ENV=TEST jest --detectOpenHandles",
+    "test": "cross-env NODE_ENV=Local jest --detectOpenHandles",
     "test:watchall": "jest --detectOpenHandles --watchAll --forceExit",
     "dev": "cross-env NODE_ENV=Local concurrently -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"tsc --watch\" \"nodemon -q dist/index.js\"",
     "dev:RW": "cross-env NODE_ENV=RW concurrently -n \"TypeScript,Node\" -c \"cyan.bold,green.bold\" \"tsc --watch\" \"nodemon -q dist/index.js\""

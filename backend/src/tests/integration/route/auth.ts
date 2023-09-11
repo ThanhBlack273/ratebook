@@ -34,6 +34,7 @@ res.status = jest.fn().mockReturnValue(200);
 res.json = jest.fn().mockReturnValue(userSignInPayload);
 
 jest.mock('../../../models/user.model', () => {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const SequelizeMock = require('sequelize-mock');
     const dbMock = new SequelizeMock();
     const UserMock = dbMock.define('user');

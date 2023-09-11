@@ -74,7 +74,6 @@ export const checkDuplicateEmail = async (req, res) => {
 
 export const signin = async (req: Request, res: Response) => {
     try {
-        console.log('hello');
         const payload: SignInUserDTO = req.body;
 
         const user = await User.findOne({
@@ -86,7 +85,7 @@ export const signin = async (req: Request, res: Response) => {
         if (!user) {
             return res.status(404).send({ error: 'User Not found.' });
         }
-        console.log(user);
+
         if (!bcrypt.compareSync(payload.password, user.password)) {
             return res.status(401).send({ error: 'Invalid Password!' });
         }
@@ -107,9 +106,10 @@ export const signin = async (req: Request, res: Response) => {
 
         //refreshTokens[refreshToken] = userInfo;
 
-        user.update({
-            device: req.body.device,
-        });
+        // const update = await user.update({
+        //     device: payload.device,
+        // });
+        // console.log(update);
 
         return res.status(200).send({
             accessToken: token,
@@ -117,6 +117,7 @@ export const signin = async (req: Request, res: Response) => {
             user: userInfo,
         });
     } catch (err) {
+        console.log(err);
         res.status(500).send({ error: err.message });
     }
 };
