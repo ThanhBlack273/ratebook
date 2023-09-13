@@ -2,6 +2,62 @@
 import User from '../../../models/user.model';
 import { signin } from '../../../api/controllers/auth.controllers';
 import httpMocks from 'node-mocks-http';
+// import { User, Book, Review, LikeBook, LikeReview, HideReview, Notification } from '../../../models';
+// import { User } from '../../../models';
+
+// Mock the User model
+// jest.mock('../../../models', () => ({}));
+jest.mock('../../../models/user.model', () => ({}));
+
+const mUser = {
+    id: 1,
+    email: 'bao01@gmail.com',
+    password: '$2a$08$Q6RWGmkge4n9yoo2L92aRuVZbT7frPEeJ1v6RU6yHPuWRVOKi4n7G',
+    userName: 'bao',
+    dateOfBirth: '2023-08-03T09:14:24.139Z',
+    phoneNumber: '0355736772',
+    secretAsk: 'What is your mother name',
+    secretAns: 'Speed father',
+    avatar: 'http://res.cloudinary.com/dcllp2b8r/image/upload/v1692263000/e6edgqmqitfyzgzuhgj5.png',
+    device: 'c_0CYPeLSWeToyVUkHUphF:APA91bGmYndFYfsidjDsfEZbLkpHQ1HVflqNQTRPS8-aiFklY2UB4h4RCCCy2sxBbxynpZyNlhjaWMsMHgx7ap_-L0PBWxo-WKgoOi0w7GwSuQrP8mYAwBZc8muhLBoxT_STMfA5RIot',
+    createdAt: '2023-09-11T06:44:00.031Z',
+    updatedAt: '2023-09-11T06:44:03.856Z',
+};
+
+// Write your test
+describe('signin controller', () => {
+    beforeEach(() => {
+        // User.mockClear();
+        // User.hasMany = jest.fn();
+        User.findOne = jest.fn().mockReturnValue(
+            Promise.resolve({
+                ...mUser,
+                update: jest.fn().mockResolvedValue(mUser),
+            }),
+        );
+    });
+
+    it('should return user info if email exists', async () => {
+        const inSignin = {
+            email: 'bao012@gmail.com',
+            password: 'Mn12345678',
+            device: 'c_0CYPeLSWeToyVUkHUphF:APA91bGmYndFYfsidjDsfEZbLkpHQ1HVflqNQTRPS8-aiFklY2UB4h4RCCCy2sxBbxynpZyNlhjaWMsMHgx7ap_-L0PBWxo-WKgoOi0w7GwSuQrP8mYAwBZc8muhLBoxT_STMfA5RIot',
+        };
+        // Arrange
+        const req = httpMocks.createRequest();
+        const res = httpMocks.createResponse();
+
+        req.body = inSignin;
+
+        // Act
+        await signin(req, res);
+
+        // Assert
+        // expect(res.status).toHaveBeenCalledWith(200);
+        // expect(spyFindOne).toBeCalledWith({ where: { email: inSignin.email } });
+        expect(res.statusCode).toEqual(200);
+    });
+});
 
 // jest.mock('../../../models/user.model', () => {
 //     // Get the real User model
@@ -29,60 +85,13 @@ import httpMocks from 'node-mocks-http';
 //     return actualUser;
 // });
 
-// Mock the User model
-jest.mock('../../../models/user.model', () => ({}));
 // jest.mock('../../../models/book.model', () => ({}));
+// jest.mock('../../../models/index', () => ({}));
 // jest.mock('../../../models/review.model', () => ({}));
 // jest.mock('../../../models/hideReview.model', () => ({}));
 // jest.mock('../../../models/likeBook.model', () => ({}));
 // jest.mock('../../../models/likeReview.model', () => ({}));
 // jest.mock('../../../models/notification.model', () => ({}));
-
-const mUser = {
-    id: 1,
-    email: 'bao01@gmail.com',
-    password: '$2a$08$Q6RWGmkge4n9yoo2L92aRuVZbT7frPEeJ1v6RU6yHPuWRVOKi4n7G',
-    userName: 'bao',
-    dateOfBirth: '2023-08-03T09:14:24.139Z',
-    phoneNumber: '0355736772',
-    secretAsk: 'What is your mother name',
-    secretAns: 'Speed father',
-    avatar: 'http://res.cloudinary.com/dcllp2b8r/image/upload/v1692263000/e6edgqmqitfyzgzuhgj5.png',
-    device: 'c_0CYPeLSWeToyVUkHUphF:APA91bGmYndFYfsidjDsfEZbLkpHQ1HVflqNQTRPS8-aiFklY2UB4h4RCCCy2sxBbxynpZyNlhjaWMsMHgx7ap_-L0PBWxo-WKgoOi0w7GwSuQrP8mYAwBZc8muhLBoxT_STMfA5RIot',
-    createdAt: '2023-09-11T06:44:00.031Z',
-    updatedAt: '2023-09-11T06:44:03.856Z',
-};
-
-// Write your test
-describe('signin controller', () => {
-    beforeEach(() => {
-        // User.mockClear();
-        User.findOne = jest.fn().mockReturnValue(mUser);
-        User.update = jest.fn().mockReturnValue(mUser);
-    });
-
-    it('should return user info if email exists', async () => {
-        const inSignin = {
-            email: 'bao012@gmail.com',
-            password: 'Mn12345678',
-            device: 'c_0CYPeLSWeToyVUkHUphF:APA91bGmYndFYfsidjDsfEZbLkpHQ1HVflqNQTRPS8-aiFklY2UB4h4RCCCy2sxBbxynpZyNlhjaWMsMHgx7ap_-L0PBWxo-WKgoOi0w7GwSuQrP8mYAwBZc8muhLBoxT_STMfA5RIot',
-        };
-        // Arrange
-        const req = httpMocks.createRequest();
-        const res = httpMocks.createResponse();
-
-        req.body = inSignin;
-
-        // const spyFindOne = jest.spyOn(User, 'findOne');
-        // Act
-        await signin(req, res);
-
-        // Assert
-        // expect(res.status).toHaveBeenCalledWith(200);
-        // expect(spyFindOne).toBeCalledWith({ where: { email: inSignin.email } });
-        expect(res.statusCode).toEqual(200);
-    });
-});
 
 // const mUser = {
 //     dataValues: {

@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { DataTypes, Model, Optional, ForeignKey } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
+import Review from './review.model';
+import User from './user.model';
 
 interface HideReviewAttributes {
     id: number;

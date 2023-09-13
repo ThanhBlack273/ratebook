@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { DataTypes, Model, Optional, ForeignKey } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
+import User from './user.model';
+import Book from './book.model';
 
 interface LikeBookAttributes {
     id: number;

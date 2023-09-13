@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { DataTypes, Model, ModelStatic, Optional } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
+import HideReview from './hideReview.model';
+import LikeReview from './likeReview.model';
+import Review from './review.model';
+import LikeBook from './likeBook.model';
+import Book from './book.model';
+import Notification from './notification.model';
 
 interface UserAttributes {
     id: number;
@@ -36,6 +42,16 @@ class User extends Model<UserAttributes, UserInput> implements UserAttributes {
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
     // public readonly deletedAt!: Date;
+
+    // static associate() {
+    //     User.hasMany(Book, {
+    //         sourceKey: 'id',
+    //         foreignKey: 'userId',
+    //         as: 'subcribedListBook',
+    //         onDelete: 'CASCADE',
+    //         onUpdate: 'CASCADE',
+    //     });
+    // }
 }
 
 User.init(
@@ -88,4 +104,77 @@ User.init(
         tableName: 'users',
     },
 );
+
+User.hasMany(Book, {
+    sourceKey: 'id',
+    foreignKey: 'userId',
+    as: 'subcribedListBook',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+Book.belongsTo(User, { targetKey: 'id', foreignKey: 'userId' });
+/////////////////////////
+User.hasMany(LikeBook, {
+    sourceKey: 'id',
+    foreignKey: 'userId',
+    as: 'likedListBook',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+LikeBook.belongsTo(User, {
+    targetKey: 'id',
+    foreignKey: 'userId',
+});
+//////////////////////////
+User.hasMany(Review, {
+    sourceKey: 'id',
+    foreignKey: 'userId',
+    as: 'reviewedListBook',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+Review.belongsTo(User, { targetKey: 'id', foreignKey: 'userId' });
+//////////////////////////
+User.hasMany(LikeReview, {
+    sourceKey: 'id',
+    foreignKey: 'userId',
+    as: 'likedReviewListReview',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+LikeReview.belongsTo(User, {
+    targetKey: 'id',
+    foreignKey: 'userId',
+});
+////////////////////////////
+User.hasMany(HideReview, {
+    sourceKey: 'id',
+    foreignKey: 'userId',
+    as: 'hidedReviewListReview',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+HideReview.belongsTo(User, {
+    targetKey: 'id',
+    foreignKey: 'userId',
+});
+////////////////////////////
+User.hasMany(Notification, {
+    sourceKey: 'id',
+    foreignKey: 'fromUserId',
+    as: 'notiFromUser',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+Notification.belongsTo(User, { targetKey: 'id', foreignKey: 'fromUserId', as: 'fromUser' });
+
+User.hasMany(Notification, {
+    sourceKey: 'id',
+    foreignKey: 'toUserId',
+    as: 'notiToUser',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+Notification.belongsTo(User, { targetKey: 'id', foreignKey: 'toUserId', as: 'toUser' });
+///////////////////////////
 export default User;

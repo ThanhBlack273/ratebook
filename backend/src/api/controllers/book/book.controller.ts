@@ -4,7 +4,6 @@ import { Request, Response } from 'express';
 import { CreateBookDTO } from '../../interfaces/book.dto';
 import { getPagingData } from '../../../helpers/paging';
 import * as mapper from './mapper';
-import sequelize from 'sequelize';
 import sequelizeConnection from '../../../config/db.config';
 
 export const subBook = async (req: Request, res: Response) => {

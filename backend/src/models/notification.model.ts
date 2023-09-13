@@ -2,6 +2,8 @@
 import { DataTypes, Model, Optional, ForeignKey } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
 import User from './user.model';
+import Review from './review.model';
+import Book from './book.model';
 
 interface NotificationAttributes {
     id: number;
@@ -32,6 +34,9 @@ class Notification extends Model<NotificationAttributes, NotificationInput> impl
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
     // public readonly deletedAt!: Date;
+
+    // static associate() {
+    // }
 }
 
 Notification.init(

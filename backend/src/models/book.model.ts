@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
-import { DataTypes, Model, Optional, Sequelize, ForeignKey } from 'sequelize';
+import { DataTypes, Model, Optional, ForeignKey } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
+import Review from './review.model';
+import LikeBook from './likeBook.model';
+import Notification from './notification.model';
 
 interface BookAttributes {
     id: number;
@@ -49,6 +52,9 @@ class Book extends Model<BookAttributes, BookrInput> implements BookAttributes {
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
     // public readonly deletedAt!: Date;
+    // static associate() {
+    //     Book.belongsTo(User, { targetKey: 'id', foreignKey: 'userId' });
+    // }
 }
 
 Book.init(
@@ -103,4 +109,70 @@ Book.init(
     },
 );
 
+Book.hasMany(LikeBook, {
+    sourceKey: 'id',
+    foreignKey: 'bookId',
+    as: 'likedListUser',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+LikeBook.belongsTo(Book, {
+    targetKey: 'id',
+    foreignKey: 'bookId',
+});
+////////////////////////////
+Book.hasMany(Review, {
+    sourceKey: 'id',
+    foreignKey: 'bookId',
+    as: 'reviewedListUser',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+Review.belongsTo(Book, { targetKey: 'id', foreignKey: 'bookId' });
+//////////////////////////
+Book.hasMany(Notification, {
+    sourceKey: 'id',
+    foreignKey: 'bookId',
+    as: 'notiBook',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+Notification.belongsTo(Book, { targetKey: 'id', foreignKey: 'bookId' });
+////////////////////////
+// Triger for rate review to star of book
+Review.afterCreate(async (review) => {
+    const book = await Book.findOne({
+        where: {
+            id: review.dataValues.bookId,
+        },
+    });
+    if (book) {
+        book.update({
+            star: (
+                (Number(book.dataValues.star) * book.dataValues.countRate + review.dataValues.rate) /
+                (book.dataValues.countRate + 1)
+            ).toFixed(1),
+
+            countRate: book.dataValues.countRate + 1,
+        });
+    }
+});
+
+Review.beforeUpdate(async (review) => {
+    const book = await Book.findOne({
+        where: {
+            id: review.dataValues.bookId,
+        },
+    });
+    if (book) {
+        book.update({
+            star: (
+                (Number(book.dataValues.star) * book.dataValues.countRate -
+                    review._previousDataValues.rate +
+                    review.dataValues.rate) /
+                book.countRate
+            ).toFixed(1),
+        });
+    }
+});
 export default Book;

@@ -1,6 +1,9 @@
 /* eslint-disable @typescript-eslint/no-empty-interface */
 import { DataTypes, Model, Optional, ForeignKey } from 'sequelize';
 import sequelizeConnection from '../config/db.config';
+import HideReview from './hideReview.model';
+import LikeReview from './likeReview.model';
+import Notification from './notification.model';
 
 interface ReviewAttributes {
     id: number;
@@ -84,4 +87,72 @@ Review.init(
     },
 );
 
+Review.hasMany(LikeReview, {
+    sourceKey: 'id',
+    foreignKey: 'reviewId',
+    as: 'likedReviewListUser',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+LikeReview.belongsTo(Review, {
+    targetKey: 'id',
+    foreignKey: 'reviewId',
+});
+/////////////////////////////
+Review.hasMany(HideReview, {
+    sourceKey: 'id',
+    foreignKey: 'reviewId',
+    as: 'hidedReviewListUser',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+HideReview.belongsTo(Review, {
+    targetKey: 'id',
+    foreignKey: 'reviewId',
+});
+//////////////////////////
+Review.hasMany(Notification, {
+    sourceKey: 'id',
+    foreignKey: 'reviewId',
+    as: 'notiReview',
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+});
+Notification.belongsTo(Review, { targetKey: 'id', foreignKey: 'reviewId' });
+//////////////////////////
+
+// //Triger for likeReview to countLike of review
+LikeReview.afterCreate(async (likeReview) => {
+    const review = await Review.findOne({
+        where: {
+            id: likeReview.dataValues.reviewId,
+        },
+    });
+    if (review) {
+        review.update({
+            countLike: review.dataValues.countLike + 1,
+        });
+    }
+});
+
+LikeReview.beforeDestroy(async (likeReview) => {
+    const review = await Review.findOne({
+        where: {
+            id: likeReview.dataValues.reviewId,
+        },
+    });
+    if (review) {
+        review.update({
+            countLike: review.dataValues.countLike - 1,
+        });
+    }
+
+    await Notification.destroy({
+        where: {
+            reviewId: likeReview.dataValues.reviewId,
+            fromUserId: likeReview.dataValues.userId,
+            type: 'like',
+        },
+    });
+});
 export default Review;

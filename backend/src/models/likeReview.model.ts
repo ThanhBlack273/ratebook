@@ -39,5 +39,6 @@ LikeReview.init(
         tableName: 'like_reviews',
     },
 );
+/////////////////////////////
 
 export default LikeReview;

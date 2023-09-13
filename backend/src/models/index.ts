@@ -1,25 +1,42 @@
-// import { Sequelize } from 'sequelize';
-import User from './user.model';
-import Book from './book.model';
-import Review from './review.model';
-import LikeBook from './likeBook.model';
-import LikeReview from './likeReview.model';
-import HideReview from './hideReview.model';
-import Notification from './notification.model';
+// import User from './user.model';
+// import Book from './book.model';
+// import Review from './review.model';
+// import LikeBook from './likeBook.model';
+// import LikeReview from './likeReview.model';
+// import HideReview from './hideReview.model';
+// import Notification from './notification.model';
 
-// //user sub book
-// User.hasMany(Book, { sourceKey: 'id', foreignKey: 'userId', as: 'subcribedListBook' });
+// // //user sub book
+// User.hasMany(Book, {
+//     sourceKey: 'id',
+//     foreignKey: 'userId',
+//     as: 'subcribedListBook',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // Book.belongsTo(User, { targetKey: 'id', foreignKey: 'userId' });
-// // ////////////////
+// // // ////////////////
 
 // // //user like sách
-// User.hasMany(LikeBook, { sourceKey: 'id', foreignKey: 'userId', as: 'likedListBook' });
+// User.hasMany(LikeBook, {
+//     sourceKey: 'id',
+//     foreignKey: 'userId',
+//     as: 'likedListBook',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // LikeBook.belongsTo(User, {
 //     targetKey: 'id',
 //     foreignKey: 'userId',
 // });
 
-// Book.hasMany(LikeBook, { sourceKey: 'id', foreignKey: 'bookId', as: 'likedListUser' });
+// Book.hasMany(LikeBook, {
+//     sourceKey: 'id',
+//     foreignKey: 'bookId',
+//     as: 'likedListUser',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // LikeBook.belongsTo(Book, {
 //     targetKey: 'id',
 //     foreignKey: 'bookId',
@@ -27,22 +44,46 @@ import Notification from './notification.model';
 // // ////////////////
 
 // // user liên quan review
-// User.hasMany(Review, { sourceKey: 'id', foreignKey: 'userId', as: 'reviewedListBook' });
+// User.hasMany(Review, {
+//     sourceKey: 'id',
+//     foreignKey: 'userId',
+//     as: 'reviewedListBook',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // Review.belongsTo(User, { targetKey: 'id', foreignKey: 'userId' });
 
 // //book liên quan review
+// Book.hasMany(Review, {
+//     sourceKey: 'id',
+//     foreignKey: 'bookId',
+//     as: 'reviewedListUser',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // Review.belongsTo(Book, { targetKey: 'id', foreignKey: 'bookId' });
-// Book.hasMany(Review, { sourceKey: 'id', foreignKey: 'bookId', as: 'reviewedListUser' });
 
 // // ////////////////
 
-// User.hasMany(LikeReview, { sourceKey: 'id', foreignKey: 'userId', as: 'likedReviewListReview' });
+// User.hasMany(LikeReview, {
+//     sourceKey: 'id',
+//     foreignKey: 'userId',
+//     as: 'likedReviewListReview',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // LikeReview.belongsTo(User, {
 //     targetKey: 'id',
 //     foreignKey: 'userId',
 // });
 
-// Review.hasMany(LikeReview, { sourceKey: 'id', foreignKey: 'reviewId', as: 'likedReviewListUser' });
+// Review.hasMany(LikeReview, {
+//     sourceKey: 'id',
+//     foreignKey: 'reviewId',
+//     as: 'likedReviewListUser',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // LikeReview.belongsTo(Review, {
 //     targetKey: 'id',
 //     foreignKey: 'reviewId',
@@ -50,34 +91,70 @@ import Notification from './notification.model';
 
 // // ////////////////
 
-// User.hasMany(HideReview, { sourceKey: 'id', foreignKey: 'userId', as: 'hidedReviewListReview' });
+// User.hasMany(HideReview, {
+//     sourceKey: 'id',
+//     foreignKey: 'userId',
+//     as: 'hidedReviewListReview',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // HideReview.belongsTo(User, {
 //     targetKey: 'id',
 //     foreignKey: 'userId',
 // });
 
-// Review.hasMany(HideReview, { sourceKey: 'id', foreignKey: 'reviewId', as: 'hidedReviewListUser' });
+// Review.hasMany(HideReview, {
+//     sourceKey: 'id',
+//     foreignKey: 'reviewId',
+//     as: 'hidedReviewListUser',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // HideReview.belongsTo(Review, {
 //     targetKey: 'id',
 //     foreignKey: 'reviewId',
 // });
 
 // ///////////////
-// User.hasMany(Notification, { sourceKey: 'id', foreignKey: 'fromUserId', as: 'notiFromUser' });
+// User.hasMany(Notification, {
+//     sourceKey: 'id',
+//     foreignKey: 'fromUserId',
+//     as: 'notiFromUser',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // Notification.belongsTo(User, { targetKey: 'id', foreignKey: 'fromUserId', as: 'fromUser' });
 
-// User.hasMany(Notification, { sourceKey: 'id', foreignKey: 'toUserId', as: 'notiToUser' });
+// User.hasMany(Notification, {
+//     sourceKey: 'id',
+//     foreignKey: 'toUserId',
+//     as: 'notiToUser',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // Notification.belongsTo(User, { targetKey: 'id', foreignKey: 'toUserId', as: 'toUser' });
 
-// Review.hasMany(Notification, { sourceKey: 'id', foreignKey: 'reviewId', as: 'notiReview' });
+// Review.hasMany(Notification, {
+//     sourceKey: 'id',
+//     foreignKey: 'reviewId',
+//     as: 'notiReview',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // Notification.belongsTo(Review, { targetKey: 'id', foreignKey: 'reviewId' });
 
-// Book.hasMany(Notification, { sourceKey: 'id', foreignKey: 'bookId', as: 'notiBook' });
+// Book.hasMany(Notification, {
+//     sourceKey: 'id',
+//     foreignKey: 'bookId',
+//     as: 'notiBook',
+//     onDelete: 'CASCADE',
+//     onUpdate: 'CASCADE',
+// });
 // Notification.belongsTo(Book, { targetKey: 'id', foreignKey: 'bookId' });
 
 // ///////////////////
 
-// //Triger for rate review to star of book
+// // Triger for rate review to star of book
 // Review.afterCreate(async (review, options) => {
 //     const book = await Book.findOne({
 //         where: {
@@ -151,4 +228,12 @@ import Notification from './notification.model';
 //     });
 // });
 
-export { User, Book, Review, LikeBook, LikeReview, HideReview, Notification };
+// export { User, Book, Review, LikeBook, LikeReview, HideReview, Notification };
+
+export { default as User } from './user.model';
+export { default as Book } from './book.model';
+export { default as Review } from './review.model';
+export { default as LikeBook } from './likeBook.model';
+export { default as LikeReview } from './likeReview.model';
+export { default as HideReview } from './hideReview.model';
+export { default as Notification } from './notification.model';
