@@ -5,11 +5,7 @@ import { Request, Response } from 'express';
 import { User } from '../../models';
 import { CreateUserDTO, SignInUserDTO, UpdateUserDTO } from '../interfaces/user.dto';
 import sequelizeConnection from '../../config/db.config';
-import { Sequelize, Transaction } from 'sequelize';
 
-// import {} from 'multer';
-// import config from '../../config/auth.config';
-// import { UserInput, UserOutput } from '../../models/user.model';
 // const refreshTokens = {};
 
 export const signup = async (req: Request, res: Response) => {
@@ -106,10 +102,9 @@ export const signin = async (req: Request, res: Response) => {
 
         //refreshTokens[refreshToken] = userInfo;
 
-        // const update = await user.update({
-        //     device: payload.device,
-        // });
-        // console.log(update);
+        await user.update({
+            device: payload.device,
+        });
 
         return res.status(200).send({
             accessToken: token,
@@ -138,27 +133,6 @@ export const logout = async (req, res) => {
 export const refreshToken = async (req: Request, res: Response) => {
     try {
         const refreshToken: string = req.body.refreshToken;
-        // if (refreshToken in refreshTokens) {
-        //     const token = await jwt.sign({ id: res.locals.id }, config.secret, {
-        //         algorithm: 'HS256',
-        //         allowInsecureKeySizes: true,
-        //         expiresIn: config.tokenLife, // 5 mins
-        //     });
-        //     if (!token) {
-        //         return res.status(403).json({
-        //             error: 'Invalid Refresh Token',
-        //         });
-        //     }
-        //     return res.status(200).send({
-        //         accessToken: token,
-        //         refreshToken: refreshToken,
-        //     });
-        // } else {
-        //     return res.status(400).json({
-        //         error: 'Invalid Request',
-        //     });
-        // }
-
         const token = await createToken(res.locals.id);
 
         if (!token) {

@@ -37,10 +37,6 @@ export const getAllBook = async (req: Request, res: Response) => {
         const limit = 10;
         const page = req.query.page ? Number(req.query.page) - 1 : 0;
         const offset = page * limit;
-        const order = [
-            // ['title', 'DESC'],
-            ['updatedAt', 'DESC'],
-        ];
         const book = await Book.findAndCountAll({
             order: [
                 ['title', 'DESC'],
