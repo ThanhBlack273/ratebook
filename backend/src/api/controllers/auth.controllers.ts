@@ -227,7 +227,7 @@ export const changeInfoUser = async (req: Request, res: Response) => {
                 },
                 { transaction: t },
             );
-            cloudinary.uploader.destroy(lastAvatar?.split('/').pop().split('.').shift());
+            cloudinary.v2.uploader.destroy(lastAvatar?.split('/').pop().split('.').shift());
 
             const token = await createToken(newUser.id);
 

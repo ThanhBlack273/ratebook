@@ -4,7 +4,7 @@ import { Request, Response } from 'express';
 export const upImage = async (req: Request, res: Response) => {
     try {
         if (req.file !== undefined) {
-            await cloudinary.uploader
+            await cloudinary.v2.uploader
                 .upload(req.file.path)
                 .then((img) => {
                     return res.status(201).send({ photoLink: img.url });
@@ -21,11 +21,13 @@ export const upImage = async (req: Request, res: Response) => {
 export const delImage = async (req: Request, res: Response) => {
     try {
         const listLink = req.body.oldLink;
-        listLink.forEach(async (element) => {
-            await cloudinary.uploader.destroy(element?.split('/').pop().split('.').shift()).catch((err) => {
-                return res.status(500).send({ error: err.message });
-            });
-        });
+        for (const element of listLink) {
+            const result = await cloudinary.v2.uploader.destroy(element?.split('/').pop().split('.').shift());
+            if (result.result === 'not found') {
+                return res.status(500).send({ error: 'not found' });
+            }
+        }
+
         return res.status(200).send({});
     } catch (err) {
         res.status(500).send({ error: err.message });
