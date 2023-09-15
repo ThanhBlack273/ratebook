@@ -183,7 +183,7 @@ export const changePassword = async (req: Request, res: Response) => {
             { transaction: t },
         );
 
-        const token = await JWT.createToken(updatedUser.id);
+        const token = JWT.createToken(updatedUser.id);
 
         res.status(200).send({
             accessToken: token,

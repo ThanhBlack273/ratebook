@@ -420,6 +420,25 @@ describe('Auth routes', () => {
 //     };
 // });
 
+
+// const mockCreateToken = jest.fn();
+// const mockCreateRefreshToken = jest.fn();
+// jest.mock('../../helpers/jwt', () => {
+//     return {
+//         createToken: mockCreateToken,
+//         createRefreshToken: mockCreateRefreshToken,
+//     };
+// });
+//  jest.mock('../../helpers/jwt', () => {
+//      createToken: jest.fn().mockReturnValueOnce(
+//          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk0NzY0MjMzLCJleHAiOjguNjRlKzMxfQ.N8V4Rl-67ErBu_QXh7ADl4QCQr43qcOvkgN3t80_qeY',
+//      );
+//      createRefreshToken: jest.fn().mockReturnValueOnce(
+//          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk0NzY0MjMzLCJleHAiOjguNjRlKzMxfQ.T1Cqq7t_M7sSc_7D3DUsDR1xANYdZVZJDdhq3NNA2Hw',
+//      );
+//  });
+
+
 // You need to mock the Sequelize module because you want to isolate your controller module from its dependencies and avoid making actual database calls in your unit test. Mocking the module allows you to intercept any function calls from that module and provide your own implementation or return value. For example, by mocking the `transaction` function, you can avoid creating a real transaction in your database and just return a resolved promise instead.
 
 // Mocking the module also gives you access to the mock functions that Jest creates for each exported function from that module. You can use these mock functions to check how many times they were called, what arguments they received, what they returned, etc. For example, you can use `sequelize.transaction.mockImplementation()` to customize the behavior of the mocked `transaction` function, or use `expect(sequelize.transaction).toBeCalled()` to verify that it was called in your test.

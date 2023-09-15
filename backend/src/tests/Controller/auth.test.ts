@@ -1,8 +1,25 @@
 // Import Sequelize and your model
 import User from '../../models/user.model';
-import { checkDuplicateEmail, logout, refreshToken, signin, signup } from '../../api/controllers/auth.controllers';
+import {
+    changePassword,
+    checkDuplicateEmail,
+    logout,
+    refreshToken,
+    signin,
+    signup,
+} from '../../api/controllers/auth.controllers';
 import httpMocks from 'node-mocks-http';
 import JWT from '../../helpers/jwt';
+import { delImage } from '../../api/controllers/image.controller';
+import * as cloudinary from 'cloudinary';
+interface multerUpload extends Request {
+    file: Express.Multer.File;
+}
+
+jest.mock('cloudinary');
+
+const outCloudinaryFail = { result: 'not found' };
+const outCloudinarySuccess = { result: 'ok' };
 const outTokens = {
     accessToken:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk0NzY0MjMzLCJleHAiOjguNjRlKzMxfQ.N8V4Rl-67ErBu_QXh7ADl4QCQr43qcOvkgN3t80_qeY',
@@ -81,25 +98,14 @@ const outSignup = {
     updatedAt: undefined,
 };
 
+const inChangePassword = {
+    password: 'Mn12345678',
+    newPassword: 'Mn12345678',
+    confirmNewPassword: 'Mn12345678',
+};
+
 // Mock the User model
 jest.mock('../../models/user.model', () => ({}));
-
-// const mockCreateToken = jest.fn();
-// const mockCreateRefreshToken = jest.fn();
-// jest.mock('../../helpers/jwt', () => {
-//     return {
-//         createToken: mockCreateToken,
-//         createRefreshToken: mockCreateRefreshToken,
-//     };
-// });
-//  jest.mock('../../helpers/jwt', () => {
-//      createToken: jest.fn().mockReturnValueOnce(
-//          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk0NzY0MjMzLCJleHAiOjguNjRlKzMxfQ.N8V4Rl-67ErBu_QXh7ADl4QCQr43qcOvkgN3t80_qeY',
-//      );
-//      createRefreshToken: jest.fn().mockReturnValueOnce(
-//          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk0NzY0MjMzLCJleHAiOjguNjRlKzMxfQ.T1Cqq7t_M7sSc_7D3DUsDR1xANYdZVZJDdhq3NNA2Hw',
-//      );
-//  });
 
 describe('Auth controller', () => {
     describe('signup', () => {
@@ -271,7 +277,6 @@ describe('Auth controller', () => {
             expect(res.statusCode).toEqual(404);
         });
     });
-
     jest.mock('../../helpers/jwt', () => ({}));
     describe('Refresh Token', () => {
         beforeEach(() => {
@@ -306,6 +311,131 @@ describe('Auth controller', () => {
             };
             await refreshToken(req, res);
             expect(res.statusCode).toEqual(403);
+        });
+    });
+    describe('Change Password', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+            User.findOne = jest.fn().mockReturnValue(
+                Promise.resolve({
+                    ...outFindOne,
+                    update: jest.fn().mockResolvedValue({ ...outFindOne }),
+                }),
+            );
+            JWT.createToken = jest
+                .fn()
+                .mockReturnValue(
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk0NzY0MjMzLCJleHAiOjguNjRlKzMxfQ.N8V4Rl-67ErBu_QXh7ADl4QCQr43qcOvkgN3t80_qeY',
+                );
+        });
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+        test('should return change password success', async () => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = inChangePassword;
+            res.locals = { id: 1 };
+
+            await changePassword(req, res);
+            expect(res.statusCode).toEqual(200);
+        });
+        test('should return change password fail because wrong confirm new password!', async () => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = { ...inChangePassword, confirmNewPassword: 'wrong pass' };
+            res.locals = { id: 1 };
+
+            await changePassword(req, res);
+            expect(res.statusCode).toEqual(401);
+        });
+
+        test('should return change password fail because user not found', async () => {
+            jest.clearAllMocks();
+            User.findOne = jest.fn().mockReturnValue(Promise.resolve(null));
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = inChangePassword;
+            res.locals = { id: 1 };
+
+            await changePassword(req, res);
+            expect(res.statusCode).toEqual(404);
+        });
+
+        test('should return change password fail because invalid password!', async () => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = { ...inChangePassword, password: 'wrong pass' };
+            res.locals = { id: 1 };
+
+            await changePassword(req, res);
+            expect(res.statusCode).toEqual(401);
+        });
+    });
+
+    describe('Change Info User', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+            User.findOne = jest.fn().mockReturnValue(
+                Promise.resolve({
+                    ...outFindOne,
+                    update: jest.fn().mockResolvedValue({ ...outFindOne }),
+                }),
+            );
+            JWT.createToken = jest
+                .fn()
+                .mockReturnValue(
+                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk0NzY0MjMzLCJleHAiOjguNjRlKzMxfQ.N8V4Rl-67ErBu_QXh7ADl4QCQr43qcOvkgN3t80_qeY',
+                );
+
+            cloudinary.v2.uploader.destroy = jest.fn().mockReturnValue(
+                Promise.resolve({
+                    ...outCloudinarySuccess,
+                }),
+            );
+        });
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+        test('should return change info user success', async () => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = inChangePassword;
+            res.locals = { id: 1 };
+
+            await changePassword(req, res);
+            expect(res.statusCode).toEqual(200);
+        });
+        test('should return change password fail because wrong confirm new password!', async () => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = { ...inChangePassword, confirmNewPassword: 'wrong pass' };
+            res.locals = { id: 1 };
+
+            await changePassword(req, res);
+            expect(res.statusCode).toEqual(401);
+        });
+
+        test('should return change password fail because user not found', async () => {
+            jest.clearAllMocks();
+            User.findOne = jest.fn().mockReturnValue(Promise.resolve(null));
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = inChangePassword;
+            res.locals = { id: 1 };
+
+            await changePassword(req, res);
+            expect(res.statusCode).toEqual(404);
+        });
+
+        test('should return change password fail because invalid password!', async () => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = { ...inChangePassword, password: 'wrong pass' };
+            res.locals = { id: 1 };
+
+            await changePassword(req, res);
+            expect(res.statusCode).toEqual(401);
         });
     });
 });
