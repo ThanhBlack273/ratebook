@@ -1,4 +1,4 @@
-import { createToken, createRefreshToken } from '../../helpers/jwt';
+import JWT from '../../helpers/jwt';
 import bcrypt from 'bcryptjs';
 import cloudinary from '../../config/cloudinary.config';
 import { Request, Response } from 'express';
@@ -97,8 +97,8 @@ export const signin = async (req: Request, res: Response) => {
             // deletedAt: undefined,
         };
 
-        const token = await createToken(userInfo.id);
-        const refreshToken = await createRefreshToken(userInfo.id);
+        const token = await JWT.createToken(userInfo.id);
+        const refreshToken = await JWT.createRefreshToken(userInfo.id);
 
         //refreshTokens[refreshToken] = userInfo;
 
@@ -126,6 +126,7 @@ export const logout = async (req, res) => {
         user.update({ device: '' });
         return res.status(200).send({});
     } catch (err) {
+        console.log(err);
         res.status(500).send({ error: err.message });
     }
 };
@@ -133,13 +134,14 @@ export const logout = async (req, res) => {
 export const refreshToken = async (req: Request, res: Response) => {
     try {
         const refreshToken: string = req.body.refreshToken;
-        const token = await createToken(res.locals.id);
-
+        const token = await JWT.createToken(res.locals.id);
+        console.log(token);
         if (!token) {
             return res.status(403).json({
-                error: 'Invalid Refresh Token',
+                error: 'Fail create new token',
             });
         }
+
         return res.status(200).send({
             accessToken: token,
             refreshToken: refreshToken,
@@ -181,7 +183,7 @@ export const changePassword = async (req: Request, res: Response) => {
             { transaction: t },
         );
 
-        const token = await createToken(updatedUser.id);
+        const token = await JWT.createToken(updatedUser.id);
 
         res.status(200).send({
             accessToken: token,
@@ -229,7 +231,7 @@ export const changeInfoUser = async (req: Request, res: Response) => {
             );
             cloudinary.v2.uploader.destroy(lastAvatar?.split('/').pop().split('.').shift());
 
-            const token = await createToken(newUser.id);
+            const token = await JWT.createToken(newUser.id);
 
             res.status(200).send({
                 accessToken: token,
@@ -257,7 +259,7 @@ export const changeInfoUser = async (req: Request, res: Response) => {
                 { transaction: t },
             );
 
-            const token = await createToken(newUser.id);
+            const token = await JWT.createToken(newUser.id);
 
             res.status(200).send({
                 accessToken: token,
@@ -299,7 +301,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
             });
         }
 
-        const token = await createToken(user.id);
+        const token = await JWT.createToken(user.id);
 
         return res.status(200).send({ token: token });
     } catch (err) {

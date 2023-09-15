@@ -3,7 +3,7 @@ import { User, Book, Review, LikeBook, LikeReview, HideReview, Notification } fr
 import { CreateReviewDTO, UpdateReviewDTO } from '../../interfaces/review.dto';
 import { Op } from 'sequelize';
 import { CreateNotificationDTO } from '../../interfaces/notification.dto';
-import { getPagingData } from '../../../helpers/paging';
+import Paging from '../../../helpers/paging';
 import * as mapper from './mapper';
 import sequelizeConnection from '../../../config/db.config';
 
@@ -121,7 +121,7 @@ export const getAllReview = async (req: Request, res: Response) => {
         });
         // if (review.rows.length == 0) return res.status(404).send({ error: 'Do not have any review' });
         if (review.rows.length == 0) return res.status(200).send({});
-        const response = await getPagingData(review, page + 1, limit);
+        const response = await Paging.getPagingData(review, page + 1, limit);
         // const newData = await response.datas.map(mapper.toGetAllReview);
         return res.status(200).send({
             totalBooks: response.totalDatas,
@@ -338,7 +338,7 @@ export const noti = async (req, res) => {
         //     res.status(404).send({ error: 'Do not have any notification' });
         // }
         if (noti.rows.length == 0) return res.status(200).send({});
-        const response = await getPagingData(noti, page + 1, limit);
+        const response = await Paging.getPagingData(noti, page + 1, limit);
         return res.status(200).send({
             totalNotis: response.totalDatas,
             totalPages: response.totalPages,

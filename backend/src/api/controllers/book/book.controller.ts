@@ -2,7 +2,7 @@ import { User, Book, Review, LikeBook, HideReview, LikeReview } from '../../../m
 import { Op } from 'sequelize';
 import { Request, Response } from 'express';
 import { CreateBookDTO } from '../../interfaces/book.dto';
-import { getPagingData } from '../../../helpers/paging';
+import Paging from '../../../helpers/paging';
 import * as mapper from './mapper';
 import sequelizeConnection from '../../../config/db.config';
 
@@ -49,7 +49,7 @@ export const getAllBook = async (req: Request, res: Response) => {
         //     return res.status(404).send({ error: 'No books have been registered yet.' });
         // }
         if (book.rows.length == 0) return res.status(200).send({});
-        const response = await getPagingData(book, page + 1, limit);
+        const response = await Paging.getPagingData(book, page + 1, limit);
         return res.status(200).send({
             totalBooks: response.totalDatas,
             totalPages: response.totalPages,
@@ -99,7 +99,7 @@ export const searchBook = async (req: Request, res: Response) => {
         //     return res.status(404).send({ error: 'Can Not Find Your Book' });
         // }
         if (book.rows.length == 0) return res.status(200).send({});
-        const response = await getPagingData(book, page + 1, limit);
+        const response = await Paging.getPagingData(book, page + 1, limit);
         return res.status(200).send({
             totalBooks: response.totalDatas,
             totalPages: response.totalPages,
@@ -217,7 +217,7 @@ export const getReviewList = async (req: Request, res: Response) => {
         });
         // if (review.rows.length == 0) return res.status(404).send({ error: 'No books have been reviewed yet.' });
         if (review.rows.length == 0) return res.status(200).send({});
-        const response = await getPagingData(review, page + 1, limit);
+        const response = await Paging.getPagingData(review, page + 1, limit);
 
         res.status(201).send({
             totalBooks: response.totalDatas,
