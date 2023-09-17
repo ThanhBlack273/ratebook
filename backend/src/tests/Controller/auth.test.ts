@@ -1,10 +1,13 @@
 // Import Sequelize and your model
 import User from '../../models/user.model';
 import {
+    changeInfoUser,
     changePassword,
     checkDuplicateEmail,
+    forgotPassword,
     logout,
     refreshToken,
+    resetPassword,
     signin,
     signup,
 } from '../../api/controllers/auth.controllers';
@@ -44,6 +47,12 @@ const inSignin = {
     email: 'bao01@gmail.com',
     password: 'Mn12345678',
     device: 'c_0CYPeLSWeToyVUkHUphF:APA91bGmYndFYfsidjDsfEZbLkpHQ1HVflqNQTRPS8-aiFklY2UB4h4RCCCy2sxBbxynpZyNlhjaWMsMHgx7ap_-L0PBWxo-WKgoOi0w7GwSuQrP8mYAwBZc8muhLBoxT_STMfA5RIot',
+};
+
+const inForgotPass = {
+    email: 'bao01@gmail.com',
+    secretAsk: 'What is your mother name',
+    secretAns: 'Speed father',
 };
 
 const outSignin = {
@@ -102,6 +111,13 @@ const inChangePassword = {
     password: 'Mn12345678',
     newPassword: 'Mn12345678',
     confirmNewPassword: 'Mn12345678',
+};
+
+const inChangeInfoUser = {
+    userName: 'bao',
+    dateOfBirth: '2023-08-03T09:14:24.139Z',
+    phoneNumber: '0355736773',
+    avatar: 'http://res.cloudinary.com/dcllp2b8r/image/upload/v1692263000/e6edgqmqitfyzgzuhgj5.png',
 };
 
 // Mock the User model
@@ -277,7 +293,9 @@ describe('Auth controller', () => {
             expect(res.statusCode).toEqual(404);
         });
     });
+
     jest.mock('../../helpers/jwt', () => ({}));
+
     describe('Refresh Token', () => {
         beforeEach(() => {
             jest.clearAllMocks();
@@ -313,6 +331,7 @@ describe('Auth controller', () => {
             expect(res.statusCode).toEqual(403);
         });
     });
+
     describe('Change Password', () => {
         beforeEach(() => {
             jest.clearAllMocks();
@@ -397,45 +416,136 @@ describe('Auth controller', () => {
         afterEach(() => {
             jest.clearAllMocks();
         });
-        test('should return change info user success', async () => {
+        test('should return change info user success with new avatar', async () => {
             const req = httpMocks.createRequest();
             const res = httpMocks.createResponse();
-            req.body = inChangePassword;
+            req.body = inChangeInfoUser;
             res.locals = { id: 1 };
 
-            await changePassword(req, res);
+            await changeInfoUser(req, res);
             expect(res.statusCode).toEqual(200);
         });
-        test('should return change password fail because wrong confirm new password!', async () => {
+        test('should return change info user success with old avatar', async () => {
             const req = httpMocks.createRequest();
             const res = httpMocks.createResponse();
-            req.body = { ...inChangePassword, confirmNewPassword: 'wrong pass' };
+            req.body = { ...inChangeInfoUser, avatar: '' };
             res.locals = { id: 1 };
 
-            await changePassword(req, res);
-            expect(res.statusCode).toEqual(401);
+            await changeInfoUser(req, res);
+            expect(res.statusCode).toEqual(200);
         });
-
-        test('should return change password fail because user not found', async () => {
+        test('should return change info user fail because user not found', async () => {
             jest.clearAllMocks();
             User.findOne = jest.fn().mockReturnValue(Promise.resolve(null));
             const req = httpMocks.createRequest();
             const res = httpMocks.createResponse();
-            req.body = inChangePassword;
+            req.body = inChangeInfoUser;
             res.locals = { id: 1 };
 
-            await changePassword(req, res);
+            await changeInfoUser(req, res);
             expect(res.statusCode).toEqual(404);
         });
+    });
 
-        test('should return change password fail because invalid password!', async () => {
+    describe('Forgot Password', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+            User.findOne = jest.fn().mockReturnValue(
+                Promise.resolve({
+                    ...outFindOne,
+                    update: jest.fn().mockResolvedValue(outFindOne),
+                }),
+            );
+            JWT.createToken = jest
+                .fn()
+                .mockReturnValue(
+                    Promise.resolve(
+                        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MSwiaWF0IjoxNjk0NzY0MjMzLCJleHAiOjguNjRlKzMxfQ.N8V4Rl-67ErBu_QXh7ADl4QCQr43qcOvkgN3t80_qeY',
+                    ),
+                );
+        });
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        test('should return forgot passord success', async () => {
+            // Arrange
             const req = httpMocks.createRequest();
             const res = httpMocks.createResponse();
-            req.body = { ...inChangePassword, password: 'wrong pass' };
-            res.locals = { id: 1 };
+            req.body = inForgotPass;
+            // Act
+            await forgotPassword(req, res);
+            expect(res.statusCode).toEqual(200);
+            // expect(res._getData()).toEqual(outSignin);
+        });
+        test('should return forgot passord fail becasuse user not found', async () => {
+            jest.clearAllMocks();
+            User.findOne = jest.fn().mockReturnValue(null);
 
-            await changePassword(req, res);
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = inForgotPass;
+            await forgotPassword(req, res);
+            expect(res.statusCode).toEqual(404);
+        });
+        test('should return forgot passord fail becasuse wrong answer secret', async () => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = { ...inForgotPass, secretAsk: 'wrong answer secret' };
+            await forgotPassword(req, res);
             expect(res.statusCode).toEqual(401);
         });
+    });
+
+    describe('Reset Password', () => {
+        beforeEach(() => {
+            jest.clearAllMocks();
+            User.findOne = jest.fn().mockReturnValue(
+                Promise.resolve({
+                    ...outFindOne,
+                    update: jest.fn().mockResolvedValue(outFindOne),
+                }),
+            );
+        });
+        afterEach(() => {
+            jest.clearAllMocks();
+        });
+
+        test('should return reset password success', async () => {
+            // Arrange
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = {
+                newPassword: 'Thanhblack2734',
+                confirmNewPassword: 'Thanhblack2734',
+            };
+            // Act
+            await resetPassword(req, res);
+            expect(res.statusCode).toEqual(200);
+            // expect(res._getData()).toEqual(outSignin);
+        }, 10000);
+        test('should return reset password fail becasuse user Not found', async () => {
+            jest.clearAllMocks();
+            User.findOne = jest.fn().mockReturnValue(null);
+
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = {
+                newPassword: 'Thanhblack2734',
+                confirmNewPassword: 'wrong confirm',
+            };
+            await resetPassword(req, res);
+            expect(res.statusCode).toEqual(404);
+        }, 10000);
+        test('should return reset password fail becasuse wrong password confirm', async () => {
+            const req = httpMocks.createRequest();
+            const res = httpMocks.createResponse();
+            req.body = {
+                newPassword: 'Thanhblack2734',
+                confirmNewPassword: 'wrong confirm',
+            };
+            await resetPassword(req, res);
+            expect(res.statusCode).toEqual(401);
+        }, 10000);
     });
 });

@@ -135,7 +135,6 @@ export const refreshToken = async (req: Request, res: Response) => {
     try {
         const refreshToken: string = req.body.refreshToken;
         const token = await JWT.createToken(res.locals.id);
-        console.log(token);
         if (!token) {
             return res.status(403).json({
                 error: 'Fail create new token',
@@ -310,9 +309,14 @@ export const forgotPassword = async (req: Request, res: Response) => {
 };
 
 export const resetPassword = async (req: Request, res: Response) => {
-    const t = await sequelizeConnection.transaction();
+    const t = await sequelizeConnection.transaction({
+        // isolationLevel: Transaction.ISOLATION_LEVELS.SERIALIZABLE,
+    });
+    console.log('reset password');
     try {
         const payload: UpdateUserDTO = req.body;
+
+        console.log(payload);
         const user = await User.findOne({
             where: {
                 id: res.locals.id,
